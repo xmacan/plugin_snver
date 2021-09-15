@@ -6,3 +6,5 @@ add aruba swich, instant ap cluster and controller
 add fortigate - hw type (it seems that information are in fg mibs)
 
 rule_num = 2 - for organization with multiple org_id? Something like alias
+
+add checks (for old/buggy firmware)?

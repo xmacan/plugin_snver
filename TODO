@@ -1,13 +1,8 @@
-rule_num = 2 - pro vazbu jinam? treba comware ma tri ruzne
 
-api_device_ping_device - tady potrebuju hook
+api_device_ping_device - I need hook
 
-aruba switch, instant a kontroller
-hp ilo?
+add aruba swich, instant ap cluster and controller
 
+add fortigate - hw type (it seems that information are in fg mibs)
 
-
-
-fortigate
-----------
-zajima me fortigate.mib, da se stahnout z FG, a melo by tam nekde byt i typ HW, je to ale tabulka a kazdy FG ma jine cislo asi
+rule_num = 2 - for organization with multiple org_id? Something like alias

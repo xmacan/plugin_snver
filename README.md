@@ -1,14 +1,9 @@
-# plugin_uptime for Cacti
+# plugin_snver for Cacti
 
-## Uptime/restart history
+## Try find serial number and version of device
 
 ## Author
 Petr Macek (petr.macek@kostax.cz)
-
-## Screenshot
-![Screenshot_2020-02-04 Console - Devices - (Edit)(1)](https://user-images.githubusercontent.com/26485719/73781128-07cd9e00-4790-11ea-9071-ccd08ecc937b.png)
-![Screenshot_2020-02-04 Tree Mode KOSTAX (Kostax - PVT - SQLserver2017 express win)](https://user-images.githubusercontent.com/26485719/73781130-09976180-4790-11ea-8427-b91634272bd8.png)
-
 
 
 ## Installation

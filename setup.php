@@ -69,6 +69,11 @@ function plugin_snver_setup_database() {
 	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (25506,'Description',0,'3Com comware/H3C','','walk')");
 	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (11,'Serial numbers',1,'1.3.6.1.2.1.47.1.1.1.1.11','.*','walk')");
 	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (25506,'Serial numbers',1,'1.3.6.1.2.1.47.1.1.1.1.11','.*','walk')");
+
+	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (14823,'Serial numbers',1,'1.3.6.1.4.1.14823.2.3.3.1.2.1.1.4','.*','walk')");
+	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (14823,'version',1,'1.3.6.1.4.1.14823.2.3.3.1.1.4.0','.*','get')");
+	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (14823,'hw model',1,'1.3.6.1.4.1.14823.2.3.3.1.2.1.1.6','.*','walk')");
+
 }
 
 

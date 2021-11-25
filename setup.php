@@ -43,37 +43,47 @@ function plugin_snver_setup_database() {
 	$data = array();
 	$data['columns'][] = array('name' => 'id', 'type' => 'int(11)', 'NULL' => false,'auto_increment' => true);
 	$data['columns'][] = array('name' => 'org_id', 'type' => 'int(11)', 'NULL' => false);
-	$data['columns'][] = array('name' => 'snmp', 'type' => 'enum("get","walk")', 'default' => 'get', 'NULL' => false);
-	$data['columns'][] = array('name' => 'query_type', 'type' => 'varchar(30)', 'NULL' => false);
-	$data['columns'][] = array('name' => 'rule_num', 'type' => 'int(3)', 'NULL' => false);
+	$data['columns'][] = array('name' => 'description', 'type' => 'varchar(255)', 'NULL' => false);
 	$data['columns'][] = array('name' => 'oid', 'type' => 'varchar(255)', 'NULL' => false);
 	$data['columns'][] = array('name' => 'result', 'type' => 'varchar(255)', 'NULL' => false);
+	$data['columns'][] = array('name' => 'method', 'type' => 'enum("get","walk","info","table")', 'default' => 'get', 'NULL' => false);
 	$data['primary'] = 'id';
 	$data['type'] = 'InnoDB';
 	$data['comment'] = 'snver data2';
 	api_plugin_db_table_create ('snver', 'plugin_snver_steps', $data);
 
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (12356,'serial',1,'1.3.6.1.4.1.12356.100.1.1.1.0','.*')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (12356,'version',1,'1.3.6.1.4.1.12356.101.4.1.1.0','.*')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (14988,'serial',1,'1.3.6.1.4.1.14988.1.1.7.3.0','.*')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (14988,'SW version',1,'1.3.6.1.4.1.14988.1.1.4.4.0','.*')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (14988,'Firmware version',1,'1.3.6.1.4.1.14988.1.1.7.4.0','.*')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (14988,'SW version',1,'1.3.6.1.4.1.14988.1.1.17.1.1.4.1','.*')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (14988,'hw',1,'SNMPv2-SMI::mib-2.47.1.1.1.1.2.65536','([a-zA-Z0-9_-]){1,20}$')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (8072,'Description',0,'Synology has OrgID 6574, but uses 8072','','walk')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (8072,'serial',1,'SNMPv2-SMI::enterprises.6574.1.5.2.0','.*')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (8072,'version',1,'SNMPv2-SMI::enterprises.6574.1.5.3.0','.*')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result) values (8072,'hw model',1,'SNMPv2-SMI::enterprises.6574.1.5.1.0','.*')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (8072,'hw disks',1,'SNMPv2-SMI::enterprises.6574.2.1.1.3','.*','walk')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (11,'Description',0,'3Com comware/H3C','','walk')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (25506,'Description',0,'3Com comware/H3C','','walk')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (11,'Serial numbers',1,'1.3.6.1.2.1.47.1.1.1.1.11','.*','walk')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (25506,'Serial numbers',1,'1.3.6.1.2.1.47.1.1.1.1.11','.*','walk')");
 
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (14823,'Serial numbers',1,'1.3.6.1.4.1.14823.2.3.3.1.2.1.1.4','.*','walk')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (14823,'version',1,'1.3.6.1.4.1.14823.2.3.3.1.1.4.0','.*','get')");
-	db_execute ("insert into plugin_snver_steps (org_id,query_type,rule_num,oid,result,snmp) values (14823,'hw model',1,'1.3.6.1.4.1.14823.2.3.3.1.2.1.1.6','.*','walk')");
+	// vendor specific
 
+	// fortinet
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (12356,'serial','1.3.6.1.4.1.12356.100.1.1.1.0','.*','get')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (12356,'version','1.3.6.1.4.1.12356.101.4.1.1.0','.*','get')");
+
+	// mikrotik
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (14988,'serial','1.3.6.1.4.1.14988.1.1.7.3.0','.*','get')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (14988,'SW version','1.3.6.1.4.1.14988.1.1.4.4.0','.*','get')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (14988,'Firmware version','1.3.6.1.4.1.14988.1.1.7.4.0','.*','get')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (14988,'SW version','1.3.6.1.4.1.14988.1.1.17.1.1.4.1','.*','get')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (14988,'hw','SNMPv2-SMI::mib-2.47.1.1.1.1.2.65536','([a-zA-Z0-9_-]){1,20}$','get')");
+
+	// net-snmp - synology
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (8072,'Info - Synology has OrgID 6574, but uses 8072','','','info')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (8072,'serial','SNMPv2-SMI::enterprises.6574.1.5.2.0','.*','get')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (8072,'version','SNMPv2-SMI::enterprises.6574.1.5.3.0','.*','get')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (8072,'hw model','SNMPv2-SMI::enterprises.6574.1.5.1.0','.*','get')");
+
+	// 3Com/H3C
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (25506,'3Com/H3C/HPE','','','info')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (11,'3Com/H3C/HPE','','','info')");
+
+	// Aruba/HPE
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (14823,'Serial numbers','1.3.6.1.4.1.14823.2.3.3.1.2.1.1.4','.*','walk')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (14823,'version','1.3.6.1.4.1.14823.2.3.3.1.1.4.0','.*','get')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (14823,'hw model','1.3.6.1.4.1.14823.2.3.3.1.2.1.1.6','.*','walk')");
+
+	// QNAP
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (24681,'hw disks','1.3.6.1.4.1.24681.1.3.11.1.5','.*','walk')");
+	// TODO - .2 .3 .7 - name, temp, smart state of disks
 }
 
 
@@ -119,6 +129,7 @@ function plugin_snver_host_edit_bottom ()	{
 	}
 	
 	// find organization
+	print '<b>Organization:</b><br/>';
 
 	$string = @cacti_snmp_get($host['hostname'], $host['snmp_community'],
                 '.1.3.6.1.2.1.1.2.0', $host['snmp_version'],
@@ -128,11 +139,12 @@ function plugin_snver_host_edit_bottom ()	{
 
 	print 'sysObejctID: ' . $string . '<br/>';
 
-	if (strpos($string, '::') !== false) {	// for SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises.311.1.1.3.1.3
-		
+	if (strpos($string, '::') !== false) {	// for SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises.311.1.1.3.1.3 (or ::enterprises.xyz)
 		$pos1 = strpos($string, '::enterprises.');
 		$pos2 = strpos($string, '.', $pos1+15);
-		
+		if ($pos2 === false) {
+			$pos2 = strlen($string);
+		}
 		$id_org = substr($string, $pos1+14, $pos2-$pos1-14);
 	} else {	// for .1.3.6.1.2.1.1.2.0 = OID: .1.3.6.1.4.1.311.1.1.3.1.3
 		$pos1 = strpos($string, '.1.3.6.1.4.1.');
@@ -143,21 +155,81 @@ function plugin_snver_host_edit_bottom ()	{
 	$org = db_fetch_cell_prepared ('SELECT organization FROM plugin_snver_organizations WHERE id = ?',
 		array($id_org));
 
-	print "Organization: $org (id: $id_org) <br/>";
+	print "Organization: $org (id: $id_org) <br/><br/>";
 
-	$desc = db_fetch_cell_prepared ('SELECT oid FROM plugin_snver_steps WHERE rule_num = 0 AND org_id = ?',
-		array($id_org));
+	print '<b>Entity MIB:</b><br/>';
 
-	if ($desc) {
-		print "Description: $desc<br/>";
+	$data_descr = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.2', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
+		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+	$data_name = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.7', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
+		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+	$data_hardwarerev = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.8', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
+		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+	$data_firmwarerev = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.9', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
+		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+	$data_softwarerev = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.10', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
+		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+	$data_serialnum = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.11', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
+		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+	$data_mfgname = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.12', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
+		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+	$data_modelname = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.13', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
+		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+	$data_mfgdate = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.17', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
+		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+	if (cacti_sizeof($data_descr) > 0) {
+		foreach ($data_descr as $key=>$val) {
+
+			if (!empty($data_hardwarerev[$key]['value']) || !empty($data_firmwarerev[$key]['value']) || !empty($data_softwarerev[$key]['value']) ||
+				!empty($data_serialnum[$key]['value'])) {
+
+				print $data_name[$key]['value'] ? 'Name: ' . $data_name[$key]['value'] . '<br/>': '';
+				print $val['value'] ? 'Description: ' . $val['value'] . '<br/>': '';
+				print $data_hardwarerev[$key]['value'] ? 'HW revision: ' . $data_hardwarerev[$key]['value'] . '<br/>': '';
+				print $data_firmwarerev[$key]['value'] ? 'FW revision: ' . $data_firmwarerev[$key]['value'] . '<br/>': '';
+				print $data_softwarerev[$key]['value'] ? 'SW revision: ' . $data_softwarerev[$key]['value'] . '<br/>': '';
+				print $data_serialnum[$key]['value'] ? 'Serial number: ' . $data_serialnum[$key]['value'] . '<br/>': '';
+				print $data_mfgname[$key]['value'] ? 'Manufact. name: ' . $data_mfgname[$key]['value'] . '<br/>': '';
+				print $data_modelname[$key]['value'] ? 'Model name: ' . $data_modelname[$key]['value'] . '<br/>': '';
+
+				if (!empty($data_mfgdate[$key]) && hexdec($data_mfgdate[$key]['value']) != 0) {
+					$data_mfgdate[$key]['value'] = str_replace(' ','',$data_mfgdate[$key]['value']);
+					$man_year = substr($data_mfgdate[$key]['value'],0,4);
+					$man_month = substr($data_mfgdate[$key]['value'],4,2);
+					$man_day = substr($data_mfgdate[$key]['value'],6,2);
+					if ($man_year != 0) {
+						print 'Manufactory date: ' . hexdec($man_year) . '-' . hexdec($man_month) . '-' . hexdec($man_day) . '<br/>';
+					}
+				}
+				echo '<br/>';
+			}
+		}
+	} else {
+		print 'Device doesn\'t support Entity MIB<br/>';
 	}
 
-	$steps = db_fetch_assoc_prepared ('SELECT * FROM plugin_snver_steps WHERE org_id = ? AND rule_num > 0 ORDER BY query_type, rule_num',
+	// end of entity mib
+
+	print '<b>Vendor specific:</b><br/>';
+
+	$steps = db_fetch_assoc_prepared ('SELECT * FROM plugin_snver_steps WHERE org_id = ? ORDER BY method',
 		array($id_org));
 
 	foreach ($steps as $step) {
 		if (cacti_sizeof($step)) {
-			if ($step['snmp'] == 'get') {
+			if ($step['method'] == 'info') {
+				print 'Info: ' . $step['description'] . '<br/>';
+			}
+			if ($step['method'] == 'get') {
 				$data = @cacti_snmp_get($host['hostname'], $host['snmp_community'],
 					$step['oid'], $host['snmp_version'],
 					$host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
@@ -165,11 +237,12 @@ function plugin_snver_host_edit_bottom ()	{
 					$host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
 
 				if (preg_match ('#' . $step['result'] . '#', $data, $matches) !== false) {
-					print ucfirst($step['query_type']) . ': ' . $matches[0] . '<br/>';
+					print ucfirst($step['description']) . ': ' . $matches[0] . '<br/>';
 				} else {
-					print ucfirst($step['query_type']) . ': ' . $data . ' (cannot find specified regexp, so display all)<br/>';
+					print ucfirst($step['description']) . ': ' . $data . ' (cannot find specified regexp, so display all)<br/>';
 				}
-			} else { // walk
+			}
+			if ($step['method'] == 'walk') {
 				$data = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],
 						$step['oid'], $host['snmp_version'],
 						$host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
@@ -180,14 +253,14 @@ function plugin_snver_host_edit_bottom ()	{
 					foreach ($data as $row) {
 						if (preg_match ('#' . $step['result'] . '#', $row['value'], $matches) !== false) {
 							if (strlen($matches[0]) > 0) {
-								print ucfirst($step['query_type']) . ': ' . $matches[0] . '<br/>';
+								print ucfirst($step['description']) . ': ' . $matches[0] . '<br/>';
 							}
 						} else {
-							print ucfirst($step['query_type']) . ': ' . $row['value'] . ' (cannot find specified regexp, so display all)<br/>';
+							print ucfirst($step['description']) . ': ' . $row['value'] . ' (cannot find specified regexp, so display all)<br/>';
 						}
 					}
 				} else {
-					print "I don't know, how to get the information about " . $step['query_type'] . "<br/>";
+					print "I don't know, how to get the information about " . $step['description'] . "<br/>";
 				}
 			}
 		} else {

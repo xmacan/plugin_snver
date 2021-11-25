@@ -3,8 +3,8 @@ api_device_ping_device - I need hook
 
 add aruba swich, instant ap works with controller?
 
-add fortigate - hw type (it seems that information are in fg mibs)
-
-rule_num = 2 - for organization with multiple org_id? Something like alias
-
 add checks (for old/buggy firmware)?
+
+better work with tables (method = table)
+
+qnap -  .2 .3 .7 - name, temp, smart state of disks

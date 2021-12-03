@@ -192,25 +192,24 @@ function plugin_snver_host_edit_bottom ()	{
 			if (!empty($data_hardwarerev[$key]['value']) || !empty($data_firmwarerev[$key]['value']) || !empty($data_softwarerev[$key]['value']) ||
 				!empty($data_serialnum[$key]['value'])) {
 
-				print $data_name[$key]['value'] ? 'Name: ' . $data_name[$key]['value'] . '<br/>': '';
-				print $val['value'] ? 'Description: ' . $val['value'] . '<br/>': '';
-				print $data_hardwarerev[$key]['value'] ? 'HW revision: ' . $data_hardwarerev[$key]['value'] . '<br/>': '';
-				print $data_firmwarerev[$key]['value'] ? 'FW revision: ' . $data_firmwarerev[$key]['value'] . '<br/>': '';
-				print $data_softwarerev[$key]['value'] ? 'SW revision: ' . $data_softwarerev[$key]['value'] . '<br/>': '';
-				print $data_serialnum[$key]['value'] ? 'Serial number: ' . $data_serialnum[$key]['value'] . '<br/>': '';
-				print $data_mfgname[$key]['value'] ? 'Manufact. name: ' . $data_mfgname[$key]['value'] . '<br/>': '';
-				print $data_modelname[$key]['value'] ? 'Model name: ' . $data_modelname[$key]['value'] . '<br/>': '';
-
-				if (!empty($data_mfgdate[$key]) && hexdec($data_mfgdate[$key]['value']) != 0) {
-					$data_mfgdate[$key]['value'] = str_replace(' ','',$data_mfgdate[$key]['value']);
-					$man_year = substr($data_mfgdate[$key]['value'],0,4);
-					$man_month = substr($data_mfgdate[$key]['value'],4,2);
-					$man_day = substr($data_mfgdate[$key]['value'],6,2);
-					if ($man_year != 0) {
-						print 'Manufactory date: ' . hexdec($man_year) . '-' . hexdec($man_month) . '-' . hexdec($man_day) . '<br/>';
-					}
-				}
-				echo '<br/>';
+                                print $data_name[$key]['value'] ? 'Name: ' . $data_name[$key]['value'] . '<br/>': '';
+                                print $val['value'] ? 'Description: ' . $val['value'] . '<br/>': '';
+                                print $data_hardwarerev[$key]['value'] ? 'HW revision: ' . $data_hardwarerev[$key]['value'] . '<br/>': '';
+                                print $data_firmwarerev[$key]['value'] ? 'FW revision: ' . $data_firmwarerev[$key]['value'] . '<br/>': '';
+                                print $data_softwarerev[$key]['value'] ? 'SW revision: ' . $data_softwarerev[$key]['value'] . '<br/>': '';
+                                print $data_serialnum[$key]['value'] ? 'Serial number: ' . $data_serialnum[$key]['value'] . '<br/>': '';
+                                print $data_mfgname[$key]['value'] ? 'Manufact. name: ' . $data_mfgname[$key]['value'] . '<br/>': '';
+                                print $data_modelname[$key]['value'] ? 'Model name: ' . $data_modelname[$key]['value'] . '<br/>': '';
+                                if (!empty($data_mfgdate[$key])) {
+                                        $data_mfgdate[$key]['value'] = str_replace(' ','',$data_mfgdate[$key]['value']);
+                                        $man_year = hexdec(substr($data_mfgdate[$key]['value'],0,4));
+                                        $man_month = str_pad(hexdec(substr($data_mfgdate[$key]['value'],4,2)),2,'0',STR_PAD_LEFT);
+                                        $man_day = str_pad(hexdec(substr($data_mfgdate[$key]['value'],6,2)),2,'0',STR_PAD_LEFT);
+                                        if ($man_year != 0) {
+                                                print 'Manufactory date: ' . $man_year . '-' . $man_month . '-' . $man_day . '<br/>';
+                                        }
+                                }
+                                echo '<br/>';
 			}
 		}
 	} else {

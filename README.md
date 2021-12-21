@@ -1,6 +1,6 @@
 # plugin_snver for Cacti
 
-## Try find serial number and version of device
+## Try find serial number, version and important information about device
 For example Synology NAS:  
 sysObejctID: OID: .1.3.6.1.4.1.8072.3.2.10  
 Organization: net-snmp (id: 8072)  

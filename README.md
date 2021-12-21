@@ -19,6 +19,8 @@ Hw model: RS2211+
 Serial: B2J7changed  
 Version: DSM 6.2-25556  
 
+Now supporting Mikrotik, Synology, 3com, Aruba, QNAP, ...
+
 ## Author
 Petr Macek (petr.macek@kostax.cz)
 

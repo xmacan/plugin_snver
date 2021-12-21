@@ -1,10 +1,9 @@
 
 api_device_ping_device - I need hook
 
-add aruba swich, instant ap works with controller?
+add aruba switch (2530, os-cx)
+
+instant ap works with controller?
 
 add checks (for old/buggy firmware)?
 
-better work with tables (method = table)
-
-qnap -  .2 .3 .7 - name, temp, smart state of disks

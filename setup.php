@@ -47,6 +47,8 @@ function plugin_snver_setup_database() {
 	$data['columns'][] = array('name' => 'oid', 'type' => 'varchar(255)', 'NULL' => false);
 	$data['columns'][] = array('name' => 'result', 'type' => 'varchar(255)', 'NULL' => false);
 	$data['columns'][] = array('name' => 'method', 'type' => 'enum("get","walk","info","table")', 'default' => 'get', 'NULL' => false);
+	$data['columns'][] = array('name' => 'table_items', 'type' => 'varchar(100)', 'default' => null, 'NULL' => true);
+
 	$data['primary'] = 'id';
 	$data['type'] = 'InnoDB';
 	$data['comment'] = 'snver data2';
@@ -82,8 +84,12 @@ function plugin_snver_setup_database() {
 	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (14823,'hw model','1.3.6.1.4.1.14823.2.3.3.1.2.1.1.6','.*','walk')");
 
 	// QNAP
-	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (24681,'hw disks','1.3.6.1.4.1.24681.1.3.11.1.5','.*','walk')");
-	// TODO - .2 .3 .7 - name, temp, smart state of disks
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (24681,'hw disks','1.3.6.1.4.1.24681.1.3.11.1','.*','table','2-name,5-type,3-temp,7-smart')");
+
+	// Aruba instant AP cluster
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (14823,'APs','.1.3.6.1.4.1.14823.2.3.3.1.2.1.1','.*','table','1-mac,2-name,3-ip,4-serial,6-model,9-uptime')");
+	
+	
 }
 
 
@@ -262,6 +268,46 @@ function plugin_snver_host_edit_bottom ()	{
 					print "I don't know, how to get the information about " . $step['description'] . "<br/>";
 				}
 			}
+			if ($step['method'] == 'table') {
+				$ind_des = explode (',', $step['table_items']);
+				foreach ($ind_des as $a) {
+					list ($i,$d) = explode ('-', $a);
+					$oid_suff[] = $i;
+					$desc[] = $d;
+				} 
+				
+				echo '<table class="cactiTable"><tr>';
+				foreach ($desc as $d) {
+					echo '<th>' . $d . ' </th>';
+				}
+				
+				echo '</tr>';
+
+				
+				foreach ($oid_suff as $i) {
+
+					$data[$i] = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],
+						$step['oid'] . '.' . $i, $host['snmp_version'],
+						$host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
+						$host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
+						$host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+					$last = $i;
+				}
+
+				// display columns as rows only
+				for ($f = 0; $f < count($data[$last]);$f++) {
+					echo "<tr>";
+
+					foreach ($oid_suff as $i) {
+
+						echo "<td>" . $data[$i][$f]['value'] . " </td>";
+					}
+					echo "</tr>";
+				}
+				
+				echo '</table>';
+			}
+			
 		} else {
 			print "I don't know, how to get the information about device<br/>";
 		}

@@ -44,8 +44,11 @@ If you find a problem, let me know via github or https://forums.cacti.net
    
 
 ## Changelog
-	--- 0.1
-		Beginning
+	--- 0.3
+		Add SNVer to device edit links, click-only calling
+		Fix working with php snmp module
 	--- 0.2
 		Add Entity MIB
+	--- 0.1
+		Beginning
 

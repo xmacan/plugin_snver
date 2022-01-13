@@ -1,23 +1,9 @@
 # plugin_snver for Cacti
 
-## Try find serial number, version and important information about device
-For example Synology NAS:  
-sysObejctID: OID: .1.3.6.1.4.1.8072.3.2.10  
-Organization: net-snmp (id: 8072)  
-Description: Synology has OrgID 6574, but uses 8072  
-Hw disks: HUA722020ALA330  
-Hw disks: HUA722020ALA330  
-Hw disks: HUA722020ALA330  
-Hw disks: HUA722020ALA330  
-Hw disks: WD2003FZEX-00SRLA0  
-Hw disks: HUA722020ALA330  
-Hw disks: HUA722020ALA330  
-Hw disks: HUA722020ALA330  
-Hw disks: HUA722020ALA330  
-Hw disks: HUA722020ALA330  
-Hw model: RS2211+  
-Serial: B2J7changed  
-Version: DSM 6.2-25556  
+## Try find serial number, version and important information about device:
+
+![SNVer](https://github.com/xmacan/plugin_snver/blob/master/img/snver.png)
+
 
 Now supporting Mikrotik, Synology, 3com, Aruba, QNAP, ...
 

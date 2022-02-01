@@ -112,12 +112,12 @@ function plugin_snver_get_info($host_id) {
 
                                 print $data_name[$key]['value'] ? 'Name: ' . $data_name[$key]['value'] . '<br/>': '';
                                 print $val['value'] ? 'Description: ' . $val['value'] . '<br/>': '';
-                                print $data_hardwarerev[$key]['value'] ? 'HW revision: ' . $data_hardwarerev[$key]['value'] . '<br/>': '';
-                                print $data_firmwarerev[$key]['value'] ? 'FW revision: ' . $data_firmwarerev[$key]['value'] . '<br/>': '';
-                                print $data_softwarerev[$key]['value'] ? 'SW revision: ' . $data_softwarerev[$key]['value'] . '<br/>': '';
-                                print $data_serialnum[$key]['value'] ? 'Serial number: ' . $data_serialnum[$key]['value'] . '<br/>': '';
-                                print $data_mfgname[$key]['value'] ? 'Manufact. name: ' . $data_mfgname[$key]['value'] . '<br/>': '';
-                                print $data_modelname[$key]['value'] ? 'Model name: ' . $data_modelname[$key]['value'] . '<br/>': '';
+                                print !empty($data_hardwarerev[$key]['value']) ? 'HW revision: ' . $data_hardwarerev[$key]['value'] . '<br/>': '';
+                                print !empty($data_firmwarerev[$key]['value']) ? 'FW revision: ' . $data_firmwarerev[$key]['value'] . '<br/>': '';
+                                print !empty($data_softwarerev[$key]['value']) ? 'SW revision: ' . $data_softwarerev[$key]['value'] . '<br/>': '';
+                                print !empty($data_serialnum[$key]['value']) ? 'Serial number: ' . $data_serialnum[$key]['value'] . '<br/>': '';
+                                print !empty($data_mfgname[$key]['value']) ? 'Manufact. name: ' . $data_mfgname[$key]['value'] . '<br/>': '';
+                                print !empty($data_modelname[$key]['value']) ? 'Model name: ' . $data_modelname[$key]['value'] . '<br/>': '';
                                 if (!empty($data_mfgdate[$key])) {
                                         $data_mfgdate[$key]['value'] = str_replace(' ','',$data_mfgdate[$key]['value']);
                                         $man_year = hexdec(substr($data_mfgdate[$key]['value'],0,4));

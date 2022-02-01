@@ -44,10 +44,14 @@ function plugin_snver_get_info($host_id) {
 		return false;
 	}
 	
-	// find organization
-	print '<b>Organization:</b><br/>';
+	if ($host['availability_method'] == 0 || $host['availability_method'] == 3) {
+		print 'No SNMP availability method';
+		return false;
+	} 
 
 	snmp_set_oid_output_format (SNMP_OID_OUTPUT_NUMERIC);
+
+	// find organization
 
 	$string = @cacti_snmp_get($host['hostname'], $host['snmp_community'],
                 '.1.3.6.1.2.1.1.2.0', $host['snmp_version'],
@@ -55,7 +59,13 @@ function plugin_snver_get_info($host_id) {
                 $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
                 $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
 
-	print 'sysObejctID: ' . $string . '<br/>';
+	if ($string == 'U') {
+		print 'Cannot determine sysObjectID, is snmp configured correctly? Maybe host down';
+		return false;
+	}
+
+	print '<b>Organization:</b><br/>';
+	print 'sysObjectID: ' . $string . '<br/>';
 
 	if (strpos($string, '::') !== false) {	// for SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises.311.1.1.3.1.3 (or ::enterprises.xyz)
 		$pos1 = strpos($string, '::enterprises.');

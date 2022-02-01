@@ -123,7 +123,7 @@ function plugin_snver_check_config () {
 
 
 function plugin_snver_device_edit_top_links (){
-	print "<br/><span class='linkMarker'>*</span><a id='snver_info' data-snver_id='" . get_request_var('id') . "' href=''>" . __('SNVer') . "</a>";
+	print "<br/><span class='linkMarker'>* </span><a id='snver_info' data-snver_id='" . get_request_var('id') . "' href=''>" . __('SNVer') . "</a>";
 }
 
 

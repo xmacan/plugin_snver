@@ -29,5 +29,64 @@ include_once('./lib/snmp.php');
 include_once('./plugins/snver/functions.php');
 
 
-plugin_snver_get_info(get_filter_request_var('host_id', FILTER_VALIDATE_INT));
 
+set_default_action();
+
+$selectedTheme = get_selected_theme();
+
+if (isset_request_var ('host')) {
+	$_SESSION['host'] = get_filter_request_var ('host');
+}
+
+general_header();
+
+html_start_box('<strong>SNVer</strong>', '100%', '', '3', 'center', '');
+?>
+
+<tr>
+ <td>
+  <form name="form_snver" action="snver_tab.php">
+   <table width="100%" cellpadding="0" cellspacing="0">
+    <tr class="navigate_form">
+
+     <td style='white-space: nowrap;' width='50'>
+      &nbsp;Host:&nbsp;
+     </td>
+     <td width='1'>
+      <select name="host">
+
+<?php
+$hosts = db_fetch_assoc ('SELECT id, description FROM host WHERE id IN (' . snver_get_allowed_devices($_SESSION['sess_user_id']) . ') ORDER BY description');
+
+if (count($hosts) > 0)	{
+    foreach ($hosts as $host)	{
+	// default host
+	if (!isset($_SESSION['host'])) $_SESSION['host'] = $host['id'];
+
+	if ($_SESSION['host'] == $host['id'])	{
+	    echo '<option value="' . $host['id'] . '" selected="selected">' . $host['description'] . '</option>';
+	}
+	else
+	    echo '<option value="' . $host['id'] . '">' . $host['description'] . '</option>';
+    }
+}
+
+?>
+     <td>
+      &nbsp;<input type="submit" value="Go" title="Show">
+     </td>
+    </tr>
+  </table>
+ </form>
+</td>
+<tr><td>
+<?php
+
+if (!empty($_SESSION['host']) && in_array($_SESSION['host'],snver_get_allowed_devices($_SESSION['sess_user_id'], true))) 	{
+
+	plugin_snver_get_info($_SESSION['host']);
+	echo '</td></tr>';
+	html_end_box();
+}
+
+bottom_footer();

@@ -27,10 +27,12 @@ function plugin_snver_install () {
 
 	// only for jquery script
 	api_plugin_register_hook('snver', 'host_edit_bottom', 'plugin_snver_host_edit_bottom', 'setup.php');
+
 	api_plugin_register_hook('snver', 'device_edit_top_links', 'plugin_snver_device_edit_top_links', 'setup.php');
+	api_plugin_register_hook('snver', 'top_header_tabs', 'snver_show_tab', 'setup.php');
+	api_plugin_register_hook('snver', 'top_graph_header_tabs', 'snver_show_tab', 'setup.php');
 
-	api_plugin_register_realm('snver', 'snver.php,', 'Plugin SNVer - view', 1);
-
+	api_plugin_register_realm('snver', 'snver.php,snver_tab.php,', 'Plugin SNVer - view', 1);
 	plugin_snver_setup_database();
 }
 
@@ -97,6 +99,16 @@ function plugin_snver_setup_database() {
 	
 }
 
+function snver_show_tab () {
+        global $config;
+        if (api_user_realm_auth('snver.php')) {
+                $cp = false;
+                if (basename($_SERVER['PHP_SELF']) == 'snver.php')
+                $cp = true;
+                print '<a href="' . $config['url_path'] . 'plugins/snver/snver_tab.php"><img src="' . $config['url_path'] . 'plugins/snver/images/tab_snver' . ($cp ? '_down': '') . '.gif" alt="snver" align="absmiddle" border="0"></a>';
+        }
+}
+
 
 function plugin_snver_uninstall ()	{
 
@@ -131,4 +143,6 @@ function plugin_snver_host_edit_bottom () {
 	global $config;
 	print get_md5_include_js($config['base_path'].'/plugins/snver/snver.js');
 }
+
+
 

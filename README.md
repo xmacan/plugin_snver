@@ -32,6 +32,7 @@ If you find a problem, let me know via github or https://forums.cacti.net
 ## Changelog
 	--- 0.3
 		Add SNVer to device edit links, click-only calling
+		Add SNVer tab for users without console permission
 		Fix working with php snmp module
 		Fix php warning - entity mib may not provide all information
 		Fix detecting when host down or no snmp community

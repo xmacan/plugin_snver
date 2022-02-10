@@ -65,8 +65,10 @@ function plugin_snver_get_info($host_id) {
 		print 'No SNMP availability method';
 		return false;
 	} 
-
-	snmp_set_oid_output_format (SNMP_OID_OUTPUT_NUMERIC);
+	
+	if (function_exists('snmp_set_oid_output_format')) {
+		snmp_set_oid_output_format (SNMP_OID_OUTPUT_NUMERIC);
+	}
 
 	// find organization
 

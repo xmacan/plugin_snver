@@ -12,8 +12,9 @@ Petr Macek (petr.macek@kostax.cz)
 
 
 ## Installation
-Copy directory uptime to plugins directory  
+Copy directory snver to plugins directory (keep lowercase)
 Check file permission (Linux/unix - readable for www server)  
+Import ent.sql (described in data/README.md)
 Enable plugin (Console -> Plugin management)  
 
 ## How to use?
@@ -23,6 +24,7 @@ You will see information about serial numbers and version on each supported devi
 Copy and rewrite files  
 Check file permission (Linux/unix - readable for www server)  
 Disable and deinstall old version (Console -> Plugin management)  
+Import ent.sql (described in data/README.md)
 Install and enable new version (Console -> Plugin management)   
     
 ## Possible Bugs or any ideas?

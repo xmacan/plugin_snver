@@ -4,8 +4,9 @@
 
 ![SNVer](https://github.com/xmacan/plugin_snver/blob/master/img/snver.png)
 
-
-Now supporting Mikrotik, Cisco, Synology, 3com, Aruba, QNAP, ...
+A lot of vendors support SNMP Entity MIB (HPE, Synology, Cisco, Mikrotik, Fortinet, ...).
+There are information about serial numbers, part numbers, versions, ..
+For few vendors plugin I added vendor specific oids (Aruba, Mikrotik, Synology, ..)
 
 ## Author
 Petr Macek (petr.macek@kostax.cz)

@@ -29,64 +29,59 @@ include_once('./lib/snmp.php');
 include_once('./plugins/snver/functions.php');
 
 
-
 set_default_action();
 
 $selectedTheme = get_selected_theme();
 
-if (isset_request_var ('host')) {
-	$_SESSION['host'] = get_filter_request_var ('host');
+switch (get_request_var('action')) {
+        case 'ajax_hosts':
+
+                $sql_where = '';
+
+                get_allowed_ajax_hosts(true, 'applyFilter', $sql_where);
+
+                break;
+
+        default:
+		general_header();
+		display_snver_form();
+		bottom_footer();
+                break;
 }
 
-general_header();
 
-html_start_box('<strong>SNVer</strong>', '100%', '', '3', 'center', '');
+function display_snver_form() {
+	global $config;
+	
+	print get_md5_include_js($config['base_path'].'/plugins/snver/snver.js');
+
+	$host_where = '';
+
+	html_start_box('<strong>SNVer</strong>', '100%', '', '3', 'center', '');
 ?>
 
-<tr>
- <td>
-  <form name="form_snver" action="snver_tab.php">
-   <table width="100%" cellpadding="0" cellspacing="0">
-    <tr class="navigate_form">
+	<tr>
+ 	 <td>
+  	  <form name="form_snver" action="snver_tab.php">
+   		<table width="100%" cellpadding="0" cellspacing="0">
+    		<tr class="navigate_form">
+     		<td>
+		       <?php print html_host_filter(get_request_var('host_id'), 'applyFilter', $host_where);?>
 
-     <td style='white-space: nowrap;' width='50'>
-      &nbsp;Host:&nbsp;
-     </td>
-     <td width='1'>
-      <select name="host">
-
+     		<td>
+      			<input type='submit' class='ui-button ui-corner-all ui-widget' id='refresh' value='<?php print __('Go');?>' title='<?php print __esc('Set/Refresh Filters');?>'>
+      			<input type='button' class='ui-button ui-corner-all ui-widget' id='clear' value='<?php print __('Clear');?>' title='<?php print __esc('Clear Filters');?>'> 
+     		</td>
+    		</tr>
+  		</table>
+ 	</form>
+       </td>
+     <tr><td>
 <?php
-$hosts = db_fetch_assoc ('SELECT id, description FROM host WHERE id IN (' . snver_get_allowed_devices($_SESSION['sess_user_id']) . ') ORDER BY description');
 
-if (count($hosts) > 0)	{
-    foreach ($hosts as $host)	{
-	// default host
-	if (!isset($_SESSION['host'])) $_SESSION['host'] = $host['id'];
-
-	if ($_SESSION['host'] == $host['id'])	{
-	    echo '<option value="' . $host['id'] . '" selected="selected">' . $host['description'] . '</option>';
+	if (in_array(get_filter_request_var ('host_id'),snver_get_allowed_devices($_SESSION['sess_user_id'], true))) 	{
+		plugin_snver_get_info(get_request_var('host_id'));
+		echo '</td></tr>';
+		html_end_box();
 	}
-	else
-	    echo '<option value="' . $host['id'] . '">' . $host['description'] . '</option>';
-    }
 }
-
-?>
-     <td>
-      &nbsp;<input type="submit" value="Go" title="Show">
-     </td>
-    </tr>
-  </table>
- </form>
-</td>
-<tr><td>
-<?php
-
-if (!empty($_SESSION['host']) && in_array($_SESSION['host'],snver_get_allowed_devices($_SESSION['sess_user_id'], true))) 	{
-
-	plugin_snver_get_info($_SESSION['host']);
-	echo '</td></tr>';
-	html_end_box();
-}
-
-bottom_footer();

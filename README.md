@@ -31,6 +31,7 @@ If you find a problem, let me know via github or https://forums.cacti.net
 
 ## Changelog
 	--- 0.3
+		Add jquery select
 		Add SNVer to device edit links, click-only calling
 		Add SNVer tab for users without console permission
 		Fix working with php snmp module

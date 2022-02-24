@@ -63,13 +63,13 @@ function display_snver_form() {
 	<tr>
  	 <td>
   	  <form name="form_snver" action="snver_tab.php">
-   		<table width="100%" cellpadding="0" cellspacing="0">
+   		<table width="30%" cellpadding="0" cellspacing="0">
     		<tr class="navigate_form">
      		<td>
 		       <?php print html_host_filter(get_request_var('host_id'), 'applyFilter', $host_where);?>
 
      		<td>
-      			<input type='submit' class='ui-button ui-corner-all ui-widget' id='refresh' value='<?php print __('Go');?>' title='<?php print __esc('Set/Refresh Filters');?>'>
+<!--      			<input type='submit' class='ui-button ui-corner-all ui-widget' id='refresh' value='<?php print __('Go');?>' title='<?php print __esc('Set/Refresh Filters');?>'> //-->
       			<input type='button' class='ui-button ui-corner-all ui-widget' id='clear' value='<?php print __('Clear');?>' title='<?php print __esc('Clear Filters');?>'> 
      		</td>
     		</tr>

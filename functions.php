@@ -51,7 +51,7 @@ function snver_get_allowed_devices($user_id, $array = false) {
 function plugin_snver_get_info($host_id) {
 
 	if (db_fetch_cell ('SELECT count(*) from plugin_snver_organizations') < 100) {
-		print __('Please import SQL data from file plugins/snver/data/ent.sql');
+		print __('Please import SQL data from file plugins/snver/data/ent.sql. It is described in README.md');
 		return false;
 	}
 

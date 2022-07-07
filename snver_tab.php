@@ -66,7 +66,7 @@ function display_snver_form() {
    		<table width="30%" cellpadding="0" cellspacing="0">
     		<tr class="navigate_form">
      		<td>
-		       <?php print html_host_filter(get_request_var('host_id'), 'applyFilter', $host_where);?>
+		       <?php print html_host_filter(get_filter_request_var('host_id', FILTER_VALIDATE_INT), 'applyFilter', $host_where);?>
 
      		<td>
 <!--      			<input type='submit' class='ui-button ui-corner-all ui-widget' id='refresh' value='<?php print __('Go');?>' title='<?php print __esc('Set/Refresh Filters');?>'> //-->

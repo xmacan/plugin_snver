@@ -23,6 +23,16 @@
  +-------------------------------------------------------------------------+
 */
 
+
+// fix for PHP 5.4
+if (!function_exists('array_column')) {
+    function array_column($array,$column_name) {
+        return array_map(function($element) use($column_name) {
+                        return $element[$column_name];
+                }, $array);
+    }
+}
+
 function snver_get_allowed_devices($user_id, $array = false) {
         $x  = 0;
         $us = read_user_setting('hide_disabled', false, false, $user_id);

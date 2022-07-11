@@ -28,6 +28,20 @@ include_once('./include/auth.php');
 include_once('./lib/snmp.php');
 include_once('./plugins/snver/functions.php');
 
+$number_of_hosts = read_config_option('snver_hosts_processed');
 
-plugin_snver_get_info(get_filter_request_var('host_id', FILTER_VALIDATE_INT));
+$out = plugin_snver_get_info(get_filter_request_var('host_id', FILTER_VALIDATE_INT));
+
+print $out;
+
+print '<br/><br/>';
+
+if ($number_of_hosts > 0) {
+	print plugin_snver_get_history(get_request_var('host_id'),$out);
+
+}
+else {
+	print 'History data store disabled';
+}
+
 

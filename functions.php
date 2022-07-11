@@ -60,9 +60,10 @@ function snver_get_allowed_devices($user_id, $array = false) {
 
 function plugin_snver_get_info($host_id) {
 
+	$out = '';
+
 	if (db_fetch_cell ('SELECT count(*) from plugin_snver_organizations') < 100) {
-		print __('Please import SQL data from file plugins/snver/data/ent.sql. It is described in README.md');
-		return false;
+		return ('Please import SQL data from file plugins/snver/data/ent.sql. It is described in README.md');
 	}
 
 	$host = db_fetch_row_prepared ('SELECT * FROM host WHERE id = ?', array($host_id));
@@ -72,8 +73,7 @@ function plugin_snver_get_info($host_id) {
 	}
 	
 	if ($host['availability_method'] == 0 || $host['availability_method'] == 3) {
-		print 'No SNMP availability method';
-		return false;
+		return ('No SNMP availability method');
 	} 
 	
 	if (function_exists('snmp_set_oid_output_format')) {
@@ -89,12 +89,11 @@ function plugin_snver_get_info($host_id) {
                 $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
 
 	if ($string == 'U') {
-		print 'Cannot determine sysObjectID, is snmp configured correctly? Maybe host down';
-		return false;
+		return ('Cannot determine sysObjectID, is snmp configured correctly? Maybe host down');
 	}
 
-	print '<b>Organization:</b><br/>';
-	print 'sysObjectID: ' . $string . '<br/>';
+	$out = '<b>Organization:</b><br/>';
+	$out .= 'sysObjectID: ' . $string . '<br/>';
 
 	if (strpos($string, '::') !== false) {	// for SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises.311.1.1.3.1.3 (or ::enterprises.xyz)
 		$pos1 = strpos($string, '::enterprises.');
@@ -112,9 +111,9 @@ function plugin_snver_get_info($host_id) {
 	$org = db_fetch_cell_prepared ('SELECT organization FROM plugin_snver_organizations WHERE id = ?',
 		array($id_org));
 
-	print "Organization: $org (id: $id_org) <br/><br/>";
+	$out .= "Organization: $org (id: $id_org) <br/><br/>";
 
-	print '<b>Entity MIB:</b><br/>';
+	$out .= '<b>Entity MIB:</b><br/>';
 
 	$data_descr = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.2', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 
 		$host['snmp_auth_protocol'], $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'], $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
@@ -149,33 +148,33 @@ function plugin_snver_get_info($host_id) {
 			if (!empty($data_hardwarerev[$key]['value']) || !empty($data_firmwarerev[$key]['value']) || !empty($data_softwarerev[$key]['value']) ||
 				!empty($data_serialnum[$key]['value'])) {
 
-                                print $data_name[$key]['value'] ? 'Name: ' . $data_name[$key]['value'] . '<br/>': '';
-                                print $val['value'] ? 'Description: ' . $val['value'] . '<br/>': '';
-                                print !empty($data_hardwarerev[$key]['value']) ? 'HW revision: ' . $data_hardwarerev[$key]['value'] . '<br/>': '';
-                                print !empty($data_firmwarerev[$key]['value']) ? 'FW revision: ' . $data_firmwarerev[$key]['value'] . '<br/>': '';
-                                print !empty($data_softwarerev[$key]['value']) ? 'SW revision: ' . $data_softwarerev[$key]['value'] . '<br/>': '';
-                                print !empty($data_serialnum[$key]['value']) ? 'Serial number: ' . $data_serialnum[$key]['value'] . '<br/>': '';
-                                print !empty($data_mfgname[$key]['value']) ? 'Manufact. name: ' . $data_mfgname[$key]['value'] . '<br/>': '';
-                                print !empty($data_modelname[$key]['value']) ? 'Model name: ' . $data_modelname[$key]['value'] . '<br/>': '';
+                                $out .= $data_name[$key]['value'] ? 'Name: ' . $data_name[$key]['value'] . '<br/>': '';
+                                $out .= $val['value'] ? 'Description: ' . $val['value'] . '<br/>': '';
+                                $out .= !empty($data_hardwarerev[$key]['value']) ? 'HW revision: ' . $data_hardwarerev[$key]['value'] . '<br/>': '';
+                                $out .= !empty($data_firmwarerev[$key]['value']) ? 'FW revision: ' . $data_firmwarerev[$key]['value'] . '<br/>': '';
+                                $out .= !empty($data_softwarerev[$key]['value']) ? 'SW revision: ' . $data_softwarerev[$key]['value'] . '<br/>': '';
+                                $out .= !empty($data_serialnum[$key]['value']) ? 'Serial number: ' . $data_serialnum[$key]['value'] . '<br/>': '';
+                                $out .= !empty($data_mfgname[$key]['value']) ? 'Manufact. name: ' . $data_mfgname[$key]['value'] . '<br/>': '';
+                                $out .= !empty($data_modelname[$key]['value']) ? 'Model name: ' . $data_modelname[$key]['value'] . '<br/>': '';
                                 if (!empty($data_mfgdate[$key])) {
                                         $data_mfgdate[$key]['value'] = str_replace(' ','',$data_mfgdate[$key]['value']);
                                         $man_year = hexdec(substr($data_mfgdate[$key]['value'],0,4));
                                         $man_month = str_pad(hexdec(substr($data_mfgdate[$key]['value'],4,2)),2,'0',STR_PAD_LEFT);
                                         $man_day = str_pad(hexdec(substr($data_mfgdate[$key]['value'],6,2)),2,'0',STR_PAD_LEFT);
                                         if ($man_year != 0) {
-                                                print 'Manufactory date: ' . $man_year . '-' . $man_month . '-' . $man_day . '<br/>';
+                                                $out .= 'Manufactory date: ' . $man_year . '-' . $man_month . '-' . $man_day . '<br/>';
                                         }
                                 }
-                                echo '<br/>';
+                                $out .= '<br/>';
 			}
 		}
 	} else {
-		print 'Device doesn\'t support Entity MIB<br/><br/>';
+		$out .= 'Device doesn\'t support Entity MIB<br/><br/>';
 	}
 
 	// end of entity mib
 
-	print '<b>Vendor specific:</b><br/>';
+	$out .= '<b>Vendor specific:</b><br/>';
 
 	$steps = db_fetch_assoc_prepared ('SELECT * FROM plugin_snver_steps WHERE org_id = ? ORDER BY method',
 		array($id_org));
@@ -183,7 +182,7 @@ function plugin_snver_get_info($host_id) {
 	foreach ($steps as $step) {
 		if (cacti_sizeof($step)) {
 			if ($step['method'] == 'info') {
-				print 'Info: ' . $step['description'] . '<br/>';
+				$out .= 'Info: ' . $step['description'] . '<br/>';
 			}
 			if ($step['method'] == 'get') {
 				$data = @cacti_snmp_get($host['hostname'], $host['snmp_community'],
@@ -193,9 +192,9 @@ function plugin_snver_get_info($host_id) {
 					$host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
 
 				if (preg_match ('#' . $step['result'] . '#', $data, $matches) !== false) {
-					print ucfirst($step['description']) . ': ' . $matches[0] . '<br/>';
+					$out .= ucfirst($step['description']) . ': ' . $matches[0] . '<br/>';
 				} else {
-					print ucfirst($step['description']) . ': ' . $data . ' (cannot find specified regexp, so display all)<br/>';
+					$out .= ucfirst($step['description']) . ': ' . $data . ' (cannot find specified regexp, so display all)<br/>';
 				}
 			}
 			if ($step['method'] == 'walk') {
@@ -209,14 +208,14 @@ function plugin_snver_get_info($host_id) {
 					foreach ($data as $row) {
 						if (preg_match ('#' . $step['result'] . '#', $row['value'], $matches) !== false) {
 							if (strlen($matches[0]) > 0) {
-								print ucfirst($step['description']) . ': ' . $matches[0] . '<br/>';
+								$out .= ucfirst($step['description']) . ': ' . $matches[0] . '<br/>';
 							}
 						} else {
-							print ucfirst($step['description']) . ': ' . $row['value'] . ' (cannot find specified regexp, so display all)<br/>';
+							$out .= ucfirst($step['description']) . ': ' . $row['value'] . ' (cannot find specified regexp, so display all)<br/>';
 						}
 					}
 				} else {
-					print "I don't know, how to get the information about " . $step['description'] . "<br/>";
+					$out .= "I don't know, how to get the information about " . $step['description'] . "<br/>";
 				}
 			}
 			if ($step['method'] == 'table') {
@@ -227,12 +226,12 @@ function plugin_snver_get_info($host_id) {
 					$desc[] = $d;
 				} 
 				
-				echo '<table class="cactiTable"><tr>';
+				$out .= '<table class="cactiTable"><tr>';
 				foreach ($desc as $d) {
-					echo '<th>' . $d . ' </th>';
+					$out .= '<th>' . $d . ' </th>';
 				}
 				
-				echo '</tr>';
+				$out .= '</tr>';
 
 				
 				foreach ($oid_suff as $i) {
@@ -247,23 +246,51 @@ function plugin_snver_get_info($host_id) {
 
 				// display columns as rows only
 				for ($f = 0; $f < count($data[$last]);$f++) {
-					echo "<tr>";
+					$out .= "<tr>";
 
 					foreach ($oid_suff as $i) {
-
-						echo "<td>" . $data[$i][$f]['value'] . " </td>";
+						$out .= "<td>" . $data[$i][$f]['value'] . " </td>";
 					}
-					echo "</tr>";
+					$out .= "</tr>";
 				}
 				
-				echo '</table>';
+				$out .= '</table>';
 			}
 			
 		} else {
-			print "I don't know, how to get the information about device<br/>";
+			$out .= "I don't know, how to get the information about device<br/>";
 		}
 	}
 
-	print '<br/><br/>';
+	$out .= '<br/><br/>';
+	
+	return ($out);
+}
+
+
+
+function plugin_snver_get_history($host_id, $data_act) {
+
+	$out = '';
+	
+	$data_his = db_fetch_assoc_prepared ('SELECT * FROM plugin_snver_history WHERE host_id = ? ', array(get_request_var('host_id')));
+
+	if ($data_his) {
+		$data_his[0]['data'] = stripslashes($data_his[0]['data']);
+
+                $out = '<b>History from ' . $data_his[0]['last_check'] . ':</b><br/>';
+
+                if (strcmp ($data_his[0]['data'],$data_act) === 0) {
+			$out .= 'Actual and history data equal<br/><br/>';
+                }
+                else {
+                	$out .= $data_his[0]['data'] . '<br/><br/>';
+		}
+	}
+        else {
+        	$out .= 'No older data yet';
+	}
+	
+	return ($out);
 }
 

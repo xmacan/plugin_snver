@@ -17,9 +17,11 @@ Copy directory snver to plugins directory (keep lowercase)
 Check file permission (Linux/unix - readable for www server)  
 Import ent.sql (described in data/README.md)
 Enable plugin (Console -> Plugin management)  
+Configure plugin (Console -> Settings -> SNVer tab
 
 ## How to use?
 You will see information about serial numbers and version on each supported device
+You can use sperated SNVer tab or link on edit device page
 
 ## Upgrade    
 Copy and rewrite files  
@@ -33,6 +35,9 @@ If you find a problem, let me know via github or https://forums.cacti.net
    
 
 ## Changelog
+	--- 0.4
+		Add history
+		Fix unfiltered variable
 	--- 0.3
 		Add jquery select
 		Add SNVer to device edit links, click-only calling

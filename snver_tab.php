@@ -53,6 +53,8 @@ switch (get_request_var('action')) {
 function display_snver_form() {
 	global $config;
 	
+	$number_of_hosts = read_config_option('snver_hosts_processed');
+	
 	print get_md5_include_js($config['base_path'].'/plugins/snver/snver.js');
 
 	$host_where = '';
@@ -80,8 +82,20 @@ function display_snver_form() {
 <?php
 
 	if (in_array(get_filter_request_var ('host_id'),snver_get_allowed_devices($_SESSION['sess_user_id'], true))) 	{
-		plugin_snver_get_info(get_request_var('host_id'));
-		echo '</td></tr>';
+		$out =  plugin_snver_get_info(get_request_var('host_id'));
+		print $out;
+		
+		if ($number_of_hosts > 0) {
+			print plugin_snver_get_history(get_request_var('host_id'),$out);
+
+		}
+		else {
+        		print 'History data store disabled';
+		}
+
+		print '</td></tr>';
 		html_end_box();
 	}
 }
+
+

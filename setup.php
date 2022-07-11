@@ -27,15 +27,99 @@ function plugin_snver_install () {
 
 	// only for jquery script
 	api_plugin_register_hook('snver', 'host_edit_bottom', 'plugin_snver_host_edit_bottom', 'setup.php');
-
 	api_plugin_register_hook('snver', 'device_edit_top_links', 'plugin_snver_device_edit_top_links', 'setup.php');
 	api_plugin_register_hook('snver', 'top_header_tabs', 'snver_show_tab', 'setup.php');
 	api_plugin_register_hook('snver', 'top_graph_header_tabs', 'snver_show_tab', 'setup.php');
+	api_plugin_register_hook('snver', 'host_device_remove', 'plugin_snver_device_remove', 'setup.php');
+	api_plugin_register_hook('snver', 'config_settings', 'plugin_snver_config_settings', 'setup.php');
+	api_plugin_register_hook('snver', 'poller_bottom', 'plugin_snver_poller_bottom', 'setup.php');
 
 	api_plugin_register_realm('snver', 'snver.php,snver_tab.php,', 'Plugin SNVer - view', 1);
+
 	plugin_snver_setup_database();
 }
 
+function plugin_snver_config_settings() {
+
+        global $tabs, $settings, $config;
+
+        $tabs['snver'] = 'SNVer';
+
+        $settings['snver'] = array(
+        	'snver_hosts_processed' => array(
+                	'friendly_name' => 'Run periodically and store SNVer history',
+                	'description'   => 'If enabled, every poller run SNVer detects information about several devices and store results.',
+                	'method'        => 'drop_array',
+                	'array'         => array(
+                        	'0'    => 'Disabled',
+                        	'10'   => '10 devices',
+                        	'50'   => '50 devices',
+                        	'100'  => '100 devices',
+                	),
+                	'default'       => '0',
+		),
+		'snver_history' => array(
+                	'friendly_name' => 'Recheck after',
+                	'description'   => 'The shortest possible interval after which new testing will occur',
+                	'method'        => 'drop_array',
+                	'array'         => array(
+                        	'1'    => '1 day',
+                        	'7'    => '7 days',
+                        	'30'   => '30 days',
+                        	'100'  => '100 days',
+                	),
+                	'default'       => '30',
+		),
+        );
+
+}
+
+
+function plugin_snver_poller_bottom () {
+	global $config;
+
+	include_once('./plugins/snver/functions.php');
+
+    	list($micro,$seconds) = explode(" ", microtime());
+    	$start = $seconds + $micro;
+
+    	$now = time();
+    	$done = 0;
+
+	$number_of_hosts = read_config_option('snver_hosts_processed');
+	$snver_history = read_config_option('snver_history');
+
+	if ($number_of_hosts > 0) {
+	
+   		$hosts = db_fetch_assoc ('SELECT * FROM host AS h1 LEFT JOIN plugin_snver_history AS h2 ON
+    					 h1.id = h2.host_id 
+    					 WHERE (h2.last_check IS NULL OR now() > date_add(h2.last_check, interval ' . $snver_history . ' day)) 
+    					 limit ' . $number_of_hosts);
+
+	    	if (cacti_sizeof($hosts) > 0)      {
+        		foreach ($hosts as $host)       {
+				
+        			db_execute ("REPLACE INTO plugin_snver_history (host_id,data,last_check) VALUES (" .
+        			$host['id'] . ",'" . addslashes(plugin_snver_get_info($host['id'])) . "', now())");
+				$done++;
+			}
+
+		}
+	}
+
+	list($micro,$seconds) = explode(" ", microtime());
+	$total_time = $seconds + $micro - $start;
+
+	cacti_log('SNVer STATS: hosts processed/max: ' . $done . '/' . $number_of_hosts . '. Duration: ' . round($total_time,2));
+}
+
+
+
+
+function plugin_snver_device_remove($device_id) {
+
+	db_execute_prepared('DELETE FROM plugin_snver_history WHERE host_id = ?', array($device_id));
+}
 
 function plugin_snver_setup_database() {
 
@@ -60,6 +144,16 @@ function plugin_snver_setup_database() {
 	$data['type'] = 'InnoDB';
 	$data['comment'] = 'snver data2';
 	api_plugin_db_table_create ('snver', 'plugin_snver_steps', $data);
+
+	$data = array();
+	$data['columns'][] = array('name' => 'host_id', 'type' => 'int(11)', 'NULL' => false);
+	$data['columns'][] = array('name' => 'data', 'type' => 'varchar(512)', 'NULL' => true);
+	$data['columns'][] = array('name' => 'last_check', 'type' => 'timestamp', 'NULL' => false, 'default' => '0000-00-00 00:00:00');
+	$data['primary'] = 'host_id';
+	$data['type'] = 'InnoDB';
+	$data['comment'] = 'snver history';
+	api_plugin_db_table_create ('snver', 'plugin_snver_history', $data);
+
 
 
 	// vendor specific
@@ -118,7 +212,38 @@ function plugin_snver_uninstall ()	{
 	if (sizeof(db_fetch_assoc("SHOW TABLES LIKE 'plugin_snver_organizations'")) > 0 ) {
 		db_execute("DROP TABLE `plugin_snver_organizations`");
         }
+	if (sizeof(db_fetch_assoc("SHOW TABLES LIKE 'plugin_snver_history'")) > 0 ) {
+		db_execute("DROP TABLE `plugin_snver_history`");
+        }
 }
+
+function plugin_snver_upgrade_database() {
+
+        global $config;
+
+        $info = parse_ini_file($config['base_path'] . '/plugins/snver/INFO', true);
+        $info = $info['info'];
+
+        $current = $info['version'];
+        $oldv    = db_fetch_cell('SELECT version FROM plugin_config WHERE directory = "snver"');
+
+        if (!cacti_version_compare($oldv, $current, '=')) {
+
+                if (cacti_version_compare($oldv, '0.4', '<')) {
+
+			$data = array();
+			$data['columns'][] = array('name' => 'host_id', 'type' => 'int(11)', 'NULL' => false);
+			$data['columns'][] = array('name' => 'data', 'type' => 'varchar(255)', 'NULL' => true);
+			$data['columns'][] = array('name' => 'last_check', 'type' => 'timestamp', 'NULL' => true, 'default' => '0000-00-00 00:00:00');
+			$data['primary'] = 'host_id';
+			$data['type'] = 'InnoDB';
+			$data['comment'] = 'snver history';
+			api_plugin_db_table_create ('snver', 'plugin_snver_history', $data);
+		}
+	}
+}
+
+
 
 
 function plugin_snver_version()	{
@@ -130,6 +255,8 @@ function plugin_snver_version()	{
 
 
 function plugin_snver_check_config () {
+	
+	plugin_snver_upgrade_database();
 	return true;
 }
 

@@ -59,6 +59,9 @@ function snver_get_allowed_devices($user_id, $array = false) {
 
 
 function plugin_snver_get_info($host_id) {
+	global $config;
+	
+	include_once('./lib/snmp.php');
 
 	$out = '';
 

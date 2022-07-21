@@ -147,7 +147,7 @@ function plugin_snver_setup_database() {
 
 	$data = array();
 	$data['columns'][] = array('name' => 'host_id', 'type' => 'int(11)', 'NULL' => false);
-	$data['columns'][] = array('name' => 'data', 'type' => 'varchar(512)', 'NULL' => true);
+	$data['columns'][] = array('name' => 'data', 'type' => 'text', 'NULL' => true);
 	$data['columns'][] = array('name' => 'last_check', 'type' => 'timestamp', 'NULL' => false, 'default' => '0000-00-00 00:00:00');
 	$data['primary'] = 'host_id';
 	$data['type'] = 'InnoDB';
@@ -229,7 +229,7 @@ function plugin_snver_upgrade_database() {
 
         if (!cacti_version_compare($oldv, $current, '=')) {
 
-                if (cacti_version_compare($oldv, '0.4', '<')) {
+                if (cacti_version_compare($oldv, '0.4', '<=')) {
 
 			$data = array();
 			$data['columns'][] = array('name' => 'host_id', 'type' => 'int(11)', 'NULL' => false);
@@ -239,6 +239,10 @@ function plugin_snver_upgrade_database() {
 			$data['type'] = 'InnoDB';
 			$data['comment'] = 'snver history';
 			api_plugin_db_table_create ('snver', 'plugin_snver_history', $data);
+		}
+
+                if (cacti_version_compare($oldv, '0.5', '<=')) {
+			db_execute('ALTER TABLE plugin_snver_history MODIFY COLUMN data text');
 		}
 	}
 }

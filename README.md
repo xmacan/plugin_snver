@@ -35,6 +35,9 @@ If you find a problem, let me know via github or https://forums.cacti.net
    
 
 ## Changelog
+	--- 0.5
+		Fix lenght of stored history
+		Fix php warning about $config variable
 	--- 0.4
 		Add history
 		Fix unfiltered variable

@@ -28,6 +28,10 @@ include_once('./include/auth.php');
 include_once('./lib/snmp.php');
 include_once('./plugins/snver/functions.php');
 
+if (!isempty_request_var('find')) {
+	set_request_var('action','find');
+	unset_request_var('host_id');
+}
 
 set_default_action();
 
@@ -41,6 +45,14 @@ switch (get_request_var('action')) {
                 get_allowed_ajax_hosts(true, 'applyFilter', $sql_where);
 
                 break;
+                
+	case 'find':
+		general_header();
+		display_snver_form();
+		snver_find();
+		bottom_footer();
+
+		break;
 
         default:
 		general_header();
@@ -48,6 +60,7 @@ switch (get_request_var('action')) {
 		bottom_footer();
                 break;
 }
+
 
 
 function display_snver_form() {
@@ -65,21 +78,25 @@ function display_snver_form() {
 	<tr>
  	 <td>
   	  <form name="form_snver" action="snver_tab.php">
-   		<table width="30%" cellpadding="0" cellspacing="0">
+   		<table width="50%" cellpadding="0" cellspacing="0">
     		<tr class="navigate_form">
      		<td>
 		       <?php print html_host_filter(get_filter_request_var('host_id', FILTER_VALIDATE_INT), 'applyFilter', $host_where);?>
-
+		</td>
      		<td>
-<!--      			<input type='submit' class='ui-button ui-corner-all ui-widget' id='refresh' value='<?php print __('Go');?>' title='<?php print __esc('Set/Refresh Filters');?>'> //-->
+      			Find in stored data <input type='text' class='ui-button ui-corner-all ui-widget' name='find' id='find' value='<?php print get_request_var('find');?>'> 
+      			<input type='submit' class='ui-button ui-corner-all ui-widget' value='<?php print __('Find');?>'>
+     		</td>
+     		<td>
       			<input type='button' class='ui-button ui-corner-all ui-widget' id='clear' value='<?php print __('Clear');?>' title='<?php print __esc('Clear Filters');?>'> 
      		</td>
     		</tr>
   		</table>
- 	</form>
+	  </form>
        </td>
-     <tr><td>
+     <tr>
 <?php
+	html_end_box();
 
 	if (in_array(get_filter_request_var ('host_id'),snver_get_allowed_devices($_SESSION['sess_user_id'], true))) 	{
 		$out =  plugin_snver_get_info(get_request_var('host_id'));
@@ -93,8 +110,6 @@ function display_snver_form() {
         		print 'History data store disabled';
 		}
 
-		print '</td></tr>';
-		html_end_box();
 	}
 }
 

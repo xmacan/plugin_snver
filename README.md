@@ -35,6 +35,12 @@ If you find a problem, let me know via github or https://forums.cacti.net
    
 
 ## Changelog
+	--- 0.6
+		Add search in history
+		Add notification email
+		Add more history records
+		Add exclude for email notification
+		Poller function speedup
 	--- 0.5
 		Fix lenght of stored history
 		Fix php warning about $config variable

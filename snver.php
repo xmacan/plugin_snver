@@ -30,18 +30,27 @@ include_once('./plugins/snver/functions.php');
 
 $number_of_hosts = read_config_option('snver_hosts_processed');
 
-$out = plugin_snver_get_info(get_filter_request_var('host_id', FILTER_VALIDATE_INT));
+$id = get_filter_request_var('host_id', FILTER_VALIDATE_INT);
 
-print $out;
+$alive = db_fetch_row_prepared ("SELECT * FROM host 
+			WHERE id = ? AND disabled != 'on' AND status BETWEEN 2 AND 3", array($id));
 
-print '<br/><br/>';
+if (!$alive) {
+	print 'Disabled/down device. Nothing to do<br/><br/>';
+} else {
 
-if ($number_of_hosts > 0) {
-	print plugin_snver_get_history(get_request_var('host_id'),$out);
+	$out = plugin_snver_get_info($id);
 
+	print $out;
+
+	print '<br/><br/>';
+
+	if ($number_of_hosts > 0) {
+		print plugin_snver_get_history($id,$out);
+
+	}
+	else {
+		print 'History data store disabled';
+	}
 }
-else {
-	print 'History data store disabled';
-}
-
 

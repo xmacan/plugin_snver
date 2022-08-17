@@ -89,7 +89,7 @@ function plugin_snver_get_info($host_id) {
                 '.1.3.6.1.2.1.1.2.0', $host['snmp_version'],
                 $host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
                 $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
-                $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+                $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout'],1);
 
 	if ($string == 'U') {
 		return ('Cannot determine sysObjectID, is snmp configured correctly? Maybe host down');
@@ -276,18 +276,18 @@ function plugin_snver_get_history($host_id, $data_act) {
 
 	$out = '';
 	
-	$data_his = db_fetch_assoc_prepared ('SELECT * FROM plugin_snver_history WHERE host_id = ? ', array(get_request_var('host_id')));
-
+	$data_his = db_fetch_row_prepared ('SELECT * FROM plugin_snver_history 
+		WHERE host_id = ? ORDER BY last_check LIMIT 1', array(get_request_var('host_id')));
 	if ($data_his) {
-		$data_his[0]['data'] = stripslashes($data_his[0]['data']);
+		$data_his['data'] = stripslashes($data_his['data']);
 
-                $out = '<b>History from ' . $data_his[0]['last_check'] . ':</b><br/>';
+                $out = '<b>History from ' . $data_his['last_check'] . ':</b><br/>';
 
-                if (strcmp ($data_his[0]['data'],$data_act) === 0) {
+                if (strcmp ($data_his['data'],$data_act) === 0) {
 			$out .= 'Actual and history data equal<br/><br/>';
                 }
                 else {
-                	$out .= $data_his[0]['data'] . '<br/><br/>';
+                	$out .= $data_his['data'] . '<br/><br/>';
 		}
 	}
         else {
@@ -297,3 +297,32 @@ function plugin_snver_get_history($host_id, $data_act) {
 	return ($out);
 }
 
+
+function snver_find() {
+	
+	if (read_config_option('snver_hosts_processed') == 0) {
+		print 'Store history is not allowed. Nothing to do ...';
+		return false;
+	}
+	
+	$find = get_filter_request_var('find', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^([a-zA-Z0-9_-]{3,})$/')));
+	if (strlen($find) < 3) {
+		print 'At least 3 chars...';
+		return false;
+	}
+	
+	$data = db_fetch_assoc ('SELECT id,description,data,last_check FROM host 
+		LEFT JOIN plugin_snver_history ON host.id = plugin_snver_history.host_id 
+		WHERE plugin_snver_history.data LIKE "%' . $find . '%"');
+
+	if (cacti_sizeof($data)) {
+		foreach ($data as $row) {
+			print '<b>Host ' . $row['description'] . '(ID: ' . $row['id'] . ')<br/>';
+			print 'Date ' . $row['last_check'] . '</b><br/>';
+			print $row['data'] . '<br/><br/>';	
+		}
+	}
+	else {
+		print 'Not found';
+	}
+}

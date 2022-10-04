@@ -122,7 +122,8 @@ function plugin_snver_poller_bottom () {
    		$returned = cacti_sizeof($hosts1);	
 
  		// old hosts  		
-   		$hosts2 = db_fetch_assoc ("select h1.host_id as id,h1.last_check as xx 
+   		$hosts2 = db_fetch_assoc ("select h1.host_id as id,h1.last_check as xx, host.description as description,
+   			host.hostname as hostname 
    			from plugin_snver_history as h1 join host on host.id=h1.host_id 
    			where host.disabled != 'on' and host.status between 2 and 3 
    				and h1.last_check = (select max(h2.last_check) 
@@ -170,7 +171,7 @@ function plugin_snver_poller_bottom () {
        								 send_mail($emails, 
 									read_config_option('settings_from_email'),
 									'Plugin SNVer - HW changed', 
-									'I have found any HW/serial number change on Host ' . $host['id'] . ':<br/>' . PHP_EOL .
+									'I have found any HW/serial number change on Host ' . $host['description'] . ' (' . $host['hostname'] . '):<br/>' . PHP_EOL .
 									$data_act . '<br/><br/>' . PHP_EOL . 'Older data:<br/>' . PHP_EOL . $data_his, '', '', true); 
 
  	 	     						cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '), sending email notification');								

@@ -1,9 +1,10 @@
 kvuli posilani musi byt navaznost na thold - jak to zajistit? - primo pri mailovani napred otestovat, zda je thold pritomen a kdyztak jen logovat
-?? proc thold?
+
 
 
 u aruby mam uptime apcek, ale kazi mi history data. Resit to nejak dalsi tabulkou? - ANO
 	- mam to zapoznamkovane v setup.php
+
 
 presunout funkci poller_bottom do functions?
 

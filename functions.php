@@ -116,6 +116,19 @@ function plugin_snver_get_info($host_id) {
 
 	$out .= "Organization: $org (id: $id_org) <br/><br/>";
 
+	$string = @cacti_snmp_get($host['hostname'], $host['snmp_community'],
+                '.1.3.6.1.2.1.2.2.1.6.2', $host['snmp_version'],
+                $host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
+                $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
+                $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout'],1);
+
+	if ($string == 'U' || $string == '') {
+		$string = 'Cannot find MAC address. Device may not support it.';
+	}
+
+	$out .= '<b>MAC address:</b><br/>';
+	$out .= $string . '<br/><br/>';
+
 	$out .= '<b>Entity MIB:</b><br/>';
 
 	$data_descr = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],'1.3.6.1.2.1.47.1.1.1.1.2', $host['snmp_version'], $host['snmp_username'], $host['snmp_password'], 

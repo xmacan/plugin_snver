@@ -127,12 +127,8 @@ function plugin_snver_get_info($host_id) {
 	}
 
 	$out .= '<b>MAC address:</b><br/>';
-
-	foreach ($macs as $mac) {
-		$out .=  $mac['value'] . '<br/>';
-	}
-
-	$out .= '<br/>';
+	$out .= implode (',', $macs);
+	$out .= '<br/><br/>';
 
 	$out .= '<b>Entity MIB:</b><br/>';
 

@@ -116,19 +116,6 @@ function plugin_snver_get_info($host_id) {
 
 	$out .= "Organization: $org (id: $id_org) <br/><br/>";
 
-	$macs = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],
-                '.1.3.6.1.2.1.2.2.1.6', $host['snmp_version'],
-                $host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
-                $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
-                $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout'],1);
-
-	if ($string == 'U' || $string == '') {
-		$string = 'Cannot find MAC address. Device may not support it.';
-	}
-
-	$out .= '<b>MAC address:</b><br/>';
-	$out .= implode (',', $macs);
-	$out .= '<br/><br/>';
 
 	$out .= '<b>Entity MIB:</b><br/>';
 
@@ -190,6 +177,30 @@ function plugin_snver_get_info($host_id) {
 	}
 
 	// end of entity mib
+
+	$macs = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],
+                '.1.3.6.1.2.1.2.2.1.6', $host['snmp_version'],
+                $host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
+                $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
+                $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout'],1);
+
+	if ($string == 'U' || $string == '') {
+		$string = 'Cannot find MAC address. Device may not support it.';
+	}
+
+	$count = 0;
+	$out .= '<b>MAC address:</b><br/>';
+	
+	foreach ($macs as $mac) {
+		$out .= $mac['value'] . ', ';
+		if ($count == 5) {
+			$out .= '<br/>';
+			$count = 0;
+		}
+		$count++;
+	}
+	$out .= '<br/><br/>';
+
 
 	$out .= '<b>Vendor specific:</b><br/>';
 

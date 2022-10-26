@@ -191,16 +191,24 @@ function plugin_snver_get_info($host_id) {
 	$count = 0;
 	$out .= '<b>MAC address:</b><br/>';
 	
+	$out .= '<table class="cactiTable"><tr>';
+	
 	foreach ($macs as $mac) {
-		$out .= $mac['value'] . ', ';
-		if ($count == 5) {
-			$out .= '<br/>';
-			$count = 0;
+		if (strlen($mac['value']) > 1) {
+			$out .= '<td>' . $mac['value'] . '</td>';
+			if ($count == 5) {
+				$out .= '</tr><tr>';
+				$count = 0;
+			}
+			else {
+				$count++;
+			}
 		}
-		$count++;
 	}
-	$out .= '<br/><br/>';
+	
+	$out .= '</tr></table>';
 
+	$out .= '<br/><br/>';
 
 	$out .= '<b>Vendor specific:</b><br/>';
 

@@ -277,10 +277,10 @@ function plugin_snver_setup_database() {
 	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (14823,'APs','.1.3.6.1.4.1.14823.2.3.3.1.2.1.1','.*','table','1-mac,2-name,3-ip,4-serial,6-model')");
 	
 	// Cisco
-	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (9,'APs','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
-	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (5771,'APs','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
-	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (5842,'APs','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
-	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (53683,'APs','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (9,'switch','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (5771,'switch','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (5842,'switch','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (53683,'switch','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
 
 }
 

@@ -40,10 +40,13 @@ if (!$alive) {
 } else {
 
 	$out = plugin_snver_get_info($id);
-
 	print $out;
-
 	print '<br/><br/>';
+
+	$out = plugin_snver_get_info_optional($id);
+	print $out;
+	print '<br/><br/>';
+
 
 	if ($number_of_hosts > 0) {
 		print plugin_snver_get_history($id,$out);

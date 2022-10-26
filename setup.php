@@ -225,6 +225,7 @@ function plugin_snver_setup_database() {
 	$data['columns'][] = array('name' => 'result', 'type' => 'varchar(255)', 'NULL' => false);
 	$data['columns'][] = array('name' => 'method', 'type' => 'enum("get","walk","info","table")', 'default' => 'get', 'NULL' => false);
 	$data['columns'][] = array('name' => 'table_items', 'type' => 'varchar(100)', 'default' => null, 'NULL' => true);
+	$data['columns'][] = array('name' => 'mandatory', 'type' => 'enum("yes","no")', 'default' => 'yes', 'NULL' => false);
 
 	$data['primary'] = 'id';
 	$data['type'] = 'InnoDB';
@@ -273,8 +274,11 @@ function plugin_snver_setup_database() {
 	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (24681,'hw disks','1.3.6.1.4.1.24681.1.3.11.1','.*','table','2-name,5-type,3-temp,7-smart')");
 
 	// Aruba instant AP cluster
-	// uptime is problem for history - db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (14823,'APs','.1.3.6.1.4.1.14823.2.3.3.1.2.1.1','.*','table','1-mac,2-name,3-ip,4-serial,6-model,9-uptime')");
 	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (14823,'APs','.1.3.6.1.4.1.14823.2.3.3.1.2.1.1','.*','table','1-mac,2-name,3-ip,4-serial,6-model')");
+	// uptime is problem for history - so optioanl
+	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items,mandatory) VALUES (14823,'APs_uptime','.1.3.6.1.4.1.14823.2.3.3.1.2.1.1','.*','table','1-mac,2-name,9-uptime','no')");
+
+
 	
 	// Cisco
 	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (9,'switch','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
@@ -338,6 +342,10 @@ function plugin_snver_upgrade_database() {
                 if (cacti_version_compare($oldv, '0.6', '<=')) {
 			db_execute('ALTER TABLE plugin_snver_history DROP primary key');
 		}
+                if (cacti_version_compare($oldv, '0.7', '<=')) {
+			db_execute('ALTER TABLE plugin_snver_steps ADD mandatory enum("yes","no") default "yes" NOT NULL');
+		}
+
 
 	}
 }

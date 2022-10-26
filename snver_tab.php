@@ -101,6 +101,11 @@ function display_snver_form() {
 	if (in_array(get_filter_request_var ('host_id'),snver_get_allowed_devices($_SESSION['sess_user_id'], true))) 	{
 		$out =  plugin_snver_get_info(get_request_var('host_id'));
 		print $out;
+		print '<br/><br/>';
+		
+		$out =  plugin_snver_get_info(get_request_var('host_id'));
+		print $out;
+		print '<br/><br/>';
 		
 		if ($number_of_hosts > 0) {
 			print plugin_snver_get_history(get_request_var('host_id'),$out);

@@ -204,7 +204,7 @@ function plugin_snver_get_info($host_id) {
 
 	$out .= '<b>Vendor specific:</b><br/>';
 
-	$steps = db_fetch_assoc_prepared ('SELECT * FROM plugin_snver_steps WHERE org_id = ? ORDER BY method',
+	$steps = db_fetch_assoc_prepared ('SELECT * FROM plugin_snver_steps WHERE org_id = ? AND mandatory = "yes" ORDER BY method',
 		array($id_org));
 
 	foreach ($steps as $step) {
@@ -350,4 +350,144 @@ function snver_find() {
 	else {
 		print 'Not found';
 	}
+}
+
+
+function plugin_snver_get_info_optional($host_id) {
+	global $config;
+	
+	include_once('./lib/snmp.php');
+
+	$out = '';
+
+	$host = db_fetch_row_prepared ('SELECT * FROM host WHERE id = ?', array($host_id));
+
+	if (!$host) {
+		return false;
+	}
+	
+	if ($host['availability_method'] == 0 || $host['availability_method'] == 3) {
+		return ('No SNMP availability method');
+	} 
+	
+	if (function_exists('snmp_set_oid_output_format')) {
+		snmp_set_oid_output_format (SNMP_OID_OUTPUT_NUMERIC);
+	}
+
+	// find organization
+
+	$string = @cacti_snmp_get($host['hostname'], $host['snmp_community'],
+                '.1.3.6.1.2.1.1.2.0', $host['snmp_version'],
+                $host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
+                $host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
+                $host['snmp_context'], $host['snmp_port'], $host['snmp_timeout'],1);
+
+	if ($string == 'U') {
+		return ('Cannot determine sysObjectID, is snmp configured correctly? Maybe host down');
+	}
+
+	if (strpos($string, '::') !== false) {	// for SNMPv2-MIB::sysObjectID.0 = OID: SNMPv2-SMI::enterprises.311.1.1.3.1.3 (or ::enterprises.xyz)
+		$pos1 = strpos($string, '::enterprises.');
+		$pos2 = strpos($string, '.', $pos1+15);
+		if ($pos2 === false) {
+			$pos2 = strlen($string);
+		}
+		$id_org = substr($string, $pos1+14, $pos2-$pos1-14);
+	} else {	// for .1.3.6.1.2.1.1.2.0 = OID: .1.3.6.1.4.1.311.1.1.3.1.3
+		$pos1 = strpos($string, '.1.3.6.1.4.1.');
+		$pos2 = strpos($string, '.', $pos1+14);
+		$id_org = substr($string, $pos1+13, $pos2-$pos1-13);
+	}
+
+	$out .= '<b>Vendor specific optional (not saved in history):</b><br/>';
+
+	$steps = db_fetch_assoc_prepared ('SELECT * FROM plugin_snver_steps WHERE org_id = ? AND mandatory="no" ORDER BY method',
+		array($id_org));
+
+	foreach ($steps as $step) {
+		if (cacti_sizeof($step)) {
+			if ($step['method'] == 'info') {
+				$out .= 'Info: ' . $step['description'] . '<br/>';
+			}
+			if ($step['method'] == 'get') {
+				$data = @cacti_snmp_get($host['hostname'], $host['snmp_community'],
+					$step['oid'], $host['snmp_version'],
+					$host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
+					$host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
+					$host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+				if (preg_match ('#' . $step['result'] . '#', $data, $matches) !== false) {
+					$out .= ucfirst($step['description']) . ': ' . $matches[0] . '<br/>';
+				} else {
+					$out .= ucfirst($step['description']) . ': ' . $data . ' (cannot find specified regexp, so display all)<br/>';
+				}
+			}
+			if ($step['method'] == 'walk') {
+				$data = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],
+						$step['oid'], $host['snmp_version'],
+						$host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
+						$host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
+						$host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+
+				if (cacti_sizeof($data) > 0) {
+					foreach ($data as $row) {
+						if (preg_match ('#' . $step['result'] . '#', $row['value'], $matches) !== false) {
+							if (strlen($matches[0]) > 0) {
+								$out .= ucfirst($step['description']) . ': ' . $matches[0] . '<br/>';
+							}
+						} else {
+							$out .= ucfirst($step['description']) . ': ' . $row['value'] . ' (cannot find specified regexp, so display all)<br/>';
+						}
+					}
+				} else {
+					$out .= "I don't know, how to get the information about " . $step['description'] . "<br/>";
+				}
+			}
+			if ($step['method'] == 'table') {
+				$ind_des = explode (',', $step['table_items']);
+				foreach ($ind_des as $a) {
+					list ($i,$d) = explode ('-', $a);
+					$oid_suff[] = $i;
+					$desc[] = $d;
+				} 
+				
+				$out .= '<table class="cactiTable"><tr>';
+				foreach ($desc as $d) {
+					$out .= '<th>' . $d . ' </th>';
+				}
+				
+				$out .= '</tr>';
+
+				
+				foreach ($oid_suff as $i) {
+
+					$data[$i] = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],
+						$step['oid'] . '.' . $i, $host['snmp_version'],
+						$host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
+						$host['snmp_priv_passphrase'], $host['snmp_priv_protocol'],
+						$host['snmp_context'], $host['snmp_port'], $host['snmp_timeout']);
+					$last = $i;
+				}
+
+				// display columns as rows only
+				for ($f = 0; $f < count($data[$last]);$f++) {
+					$out .= "<tr>";
+
+					foreach ($oid_suff as $i) {
+						$out .= "<td>" . $data[$i][$f]['value'] . " </td>";
+					}
+					$out .= "</tr>";
+				}
+				
+				$out .= '</table>';
+			}
+			
+		} else {
+			$out .= "I don't know, how to get the information about device<br/>";
+		}
+	}
+
+	$out .= '<br/><br/>';
+	
+	return ($out);
 }

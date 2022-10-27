@@ -1,14 +1,7 @@
-chassisId (.1.3.6.1.4.1.9.3.6.3)
-chassisSerialNumberString (.1.3.6.1.4.1.9.5.1.2.19)
-
-
+lepsi db update a vytvoreni, ty vendor specific musim dat do samostatneho souboru a vzdy pri instalaci nebo updatu je vycistit a naimportovat
 
 kvuli posilani musi byt navaznost na thold - jak to zajistit? - primo pri mailovani napred otestovat, zda je thold pritomen a kdyztak jen logovat
 
-
-
-u aruby mam uptime apcek, ale kazi mi history data. Resit to nejak dalsi tabulkou? - ANO
-	- mam to zapoznamkovane v setup.php
 
 
 presunout funkci poller_bottom do functions?

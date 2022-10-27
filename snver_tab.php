@@ -103,7 +103,7 @@ function display_snver_form() {
 		print $out;
 		print '<br/><br/>';
 		
-		$out =  plugin_snver_get_info(get_request_var('host_id'));
+		$out =  plugin_snver_get_info_optional(get_request_var('host_id'));
 		print $out;
 		print '<br/><br/>';
 		

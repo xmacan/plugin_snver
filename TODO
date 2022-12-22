@@ -1,3 +1,5 @@
+v tabu umoznit zobrazit vse najednou nebo aspon vice hostu
+
 lepsi db update a vytvoreni, ty vendor specific musim dat do samostatneho souboru a vzdy pri instalaci nebo updatu je vycistit a naimportovat
 
 kvuli posilani musi byt navaznost na thold - jak to zajistit? - primo pri mailovani napred otestovat, zda je thold pritomen a kdyztak jen logovat

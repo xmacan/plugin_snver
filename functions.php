@@ -338,7 +338,7 @@ function snver_find() {
 		return false;
 	}
 	
-	$find = get_filter_request_var('find', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^([a-zA-Z0-9_-]{3,})$/')));
+	$find = get_filter_request_var('find', FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => '/^([a-zA-Z0-9_\-\.:]{3,})$/')));
 	if (strlen($find) < 3) {
 		print 'At least 3 chars...';
 		return false;

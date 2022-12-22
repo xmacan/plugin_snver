@@ -106,9 +106,8 @@ function plugin_snver_get_info($host_id) {
 		}
 		$id_org = substr($string, $pos1+14, $pos2-$pos1-14);
 	} else {	// for .1.3.6.1.2.1.1.2.0 = OID: .1.3.6.1.4.1.311.1.1.3.1.3
-		$pos1 = strpos($string, '.1.3.6.1.4.1.');
-		$pos2 = strpos($string, '.', $pos1+14);
-		$id_org = substr($string, $pos1+13, $pos2-$pos1-13);
+		preg_match('/^([a-zA-Z0-9\.: ]+)\.1\.3\.6\.1\.4\.1\.([0-9]+)[a-zA-Z0-9\. ]*$/',$string, $match);
+		$id_org = $match[2]; 
 	}
 
 	$org = db_fetch_cell_prepared ('SELECT organization FROM plugin_snver_organizations WHERE id = ?',
@@ -214,7 +213,6 @@ function plugin_snver_get_info($host_id) {
 
 	$steps = db_fetch_assoc_prepared ('SELECT * FROM plugin_snver_steps WHERE org_id = ? AND mandatory = "yes" ORDER BY method',
 		array($id_org));
-
 	foreach ($steps as $step) {
 		if (cacti_sizeof($step)) {
 			if ($step['method'] == 'info') {
@@ -417,7 +415,7 @@ function plugin_snver_get_info_optional($host_id) {
 			if ($step['method'] == 'info') {
 				$out .= 'Info: ' . $step['description'] . '<br/>';
 			}
-			if ($step['method'] == 'get') {
+			elseif ($step['method'] == 'get') {
 				$data = @cacti_snmp_get($host['hostname'], $host['snmp_community'],
 					$step['oid'], $host['snmp_version'],
 					$host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
@@ -430,7 +428,7 @@ function plugin_snver_get_info_optional($host_id) {
 					$out .= ucfirst($step['description']) . ': ' . $data . ' (cannot find specified regexp, so display all)<br/>';
 				}
 			}
-			if ($step['method'] == 'walk') {
+			elseif ($step['method'] == 'walk') {
 				$data = @cacti_snmp_walk($host['hostname'], $host['snmp_community'],
 						$step['oid'], $host['snmp_version'],
 						$host['snmp_username'], $host['snmp_password'], $host['snmp_auth_protocol'],
@@ -451,7 +449,7 @@ function plugin_snver_get_info_optional($host_id) {
 					$out .= "I don't know, how to get the information about " . $step['description'] . "<br/>";
 				}
 			}
-			if ($step['method'] == 'table') {
+			elseif ($step['method'] == 'table') {
 				$ind_des = explode (',', $step['table_items']);
 				foreach ($ind_des as $a) {
 					list ($i,$d) = explode ('-', $a);

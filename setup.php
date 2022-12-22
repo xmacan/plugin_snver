@@ -276,8 +276,6 @@ function plugin_snver_setup_database() {
 	// Aruba instant AP cluster
 	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (14823,'APs','.1.3.6.1.4.1.14823.2.3.3.1.2.1.1','.*','table','1-mac,2-name,3-ip,4-serial,6-model')");
 
-	// cisco - mac on ports
-	db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (9,'Port mac addr','1.3.6.1.4.1.9.9.500.1.2.1.1.7','.*','walk')");
 }
 
 function snver_show_tab () {
@@ -337,7 +335,7 @@ function plugin_snver_upgrade_database() {
                 if (cacti_version_compare($oldv, '0.7', '<=')) {
 			db_execute('ALTER TABLE plugin_snver_steps ADD mandatory enum("yes","no") default "yes" NOT NULL');
 
-			// uptime is problem for history - so optional
+			// aruba ap uptime is problem for history - so optional
 			db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items,mandatory) VALUES (14823,'APs_uptime','.1.3.6.1.4.1.14823.2.3.3.1.2.1.1','.*','table','1-mac,2-name,9-uptime','no')");
 	
 			// Cisco
@@ -348,6 +346,9 @@ function plugin_snver_upgrade_database() {
 
 			db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (9,'chassis','.1.3.6.1.4.1.9.5.1.2','.*','table','16-chassis_model,17-chassis_sn,19-chassis_sn_string')");
 			db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (9,'chassis','.1.3.6.1.4.1.9.3.6','.*','table','1-chassis_type,2-chassis_ver,3-chassis_id,5-chassis_romsysver')");
+
+			// cisco - mac on ports
+			db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (9,'Port mac addr','1.3.6.1.4.1.9.9.500.1.2.1.1.7','.*','walk')");
 
 		}
 

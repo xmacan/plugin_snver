@@ -78,7 +78,7 @@ function display_snver_form() {
 	<tr>
  	 <td>
   	  <form name="form_snver" action="snver_tab.php">
-   		<table width="50%" cellpadding="0" cellspacing="0">
+   		<table width="60%" cellpadding="0" cellspacing="0">
     		<tr class="navigate_form">
      		<td>
 		       <?php print html_host_filter(get_filter_request_var('host_id', FILTER_VALIDATE_INT), 'applyFilter', $host_where);?>

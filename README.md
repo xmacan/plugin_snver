@@ -6,7 +6,8 @@
 
 A lot of vendors support SNMP Entity MIB (HPE, Synology, Cisco, Mikrotik, Fortinet, ...).
 There are information about serial numbers, part numbers, versions, ..
-For few vendors plugin I added vendor specific oids (Aruba, Mikrotik, Synology, ..)
+For few vendors I added vendor specific oids (Aruba, Mikrotik, Synology, ..).
+It can be useful when you need to find problematic firmware, ...
 
 ## Author
 Petr Macek (petr.macek@kostax.cz)

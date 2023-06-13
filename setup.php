@@ -163,18 +163,18 @@ function plugin_snver_poller_bottom () {
  	 		     					cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '),  excluded from notification');
 							} else {
 
-        							$emails = db_fetch_cell_prepared ('SELECT emails FROM plugin_notification_lists 
-	        							LEFT JOIN host 
+        							$emails = db_fetch_cell_prepared ('SELECT emails, host.* FROM plugin_notification_lists 
+	        							LEFT JOIN host
         								ON plugin_notification_lists.id = host.thold_host_email
         								WHERE host.id = ?', array($host['id']));
 
-       								 send_mail($emails, 
+       								 send_mail($emails,
 									read_config_option('settings_from_email'),
-									'Plugin SNVer - HW changed', 
-									'I have found any HW/serial number change on Host ' . $host['description'] . ' (' . $host['hostname'] . '):<br/>' . PHP_EOL .
+									'Plugin SNVer - device ' . $host['description'] . ' changed',
+									'I have found any HW/serial number change on host ' . $host['description'] . ' (' . $host['hostname'] . '):<br/>' . PHP_EOL .
 									$data_act . '<br/><br/>' . PHP_EOL . 'Older data:<br/>' . PHP_EOL . $data_his, '', '', true); 
 
- 	 	     						cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '), sending email notification');								
+ 	 	     						cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '), sending email notification');
 							}
         							
         					} else { // only log

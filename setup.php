@@ -1,7 +1,7 @@
 <?php
 /*
  +-------------------------------------------------------------------------+
- | Copyright (C) 2021-2022 Petr Macek                                      |
+ | Copyright (C) 2021-2023 Petr Macek                                      |
  |                                                                         |
  | This program is free software; you can redistribute it and/or           |
  | modify it under the terms of the GNU General Public License             |
@@ -40,61 +40,61 @@ function plugin_snver_install () {
 }
 
 function plugin_snver_config_settings() {
+	global $tabs, $settings, $config;
 
-        global $tabs, $settings, $config;
+	$tabs['snver'] = 'SNVer';
 
-        $tabs['snver'] = 'SNVer';
-
-        $settings['snver'] = array(
-        	'snver_hosts_processed' => array(
-                	'friendly_name' => 'Run periodically and store SNVer history',
-                	'description'   => 'If enabled, every poller run SNVer detects information about several devices and store results.',
-                	'method'        => 'drop_array',
-                	'array'         => array(
-                        	'0'    => 'Disabled',
-                        	'10'   => '10 devices',
-                        	'50'   => '50 devices',
-                        	'100'  => '100 devices',
-                	),
-                	'default'       => '0',
+	$settings['snver'] = array(
+		'snver_hosts_processed' => array(
+			'friendly_name' => 'Run periodically and store SNVer history',
+			'description'   => 'If enabled, every poller run SNVer detects information about several devices and store results.',
+			'method'        => 'drop_array',
+			'array'         => array(
+				'0'    => 'Disabled',
+				'10'   => '10 devices',
+				'50'   => '50 devices',
+				'100'  => '100 devices',
+			),
+			'default'       => '0',
 		),
-        	'snver_records' => array(
-                	'friendly_name' => 'How many changes store',
-                	'description'   => 'How many history (changed) records keep for each device',
-                	'method'        => 'drop_array',
-                	'array'         => array(
-                        	'1'    => 'Only last state',
-                        	'5'   => '5 records',
-                        	'10'   => '10 records',
-                	),
-                	'default'       => '5',
+		'snver_records' => array(
+		'friendly_name' => 'How many changes store',
+			'description'   => 'How many history (changed) records keep for each device',
+			'method'        => 'drop_array',
+			'array'         => array(
+				'0'    => 'Without history',
+				'1'    => '1 record',
+				'5'   => '5 records',
+				'10'   => '10 records',
+			),
+			'default'       => '5',
 		),
 		'snver_history' => array(
-                	'friendly_name' => 'Recheck after',
-                	'description'   => 'The shortest possible interval after which new testing will occur',
-                	'method'        => 'drop_array',
-                	'array'         => array(
-                        	'1'    => '1 day',
-                        	'7'    => '7 days',
-                        	'30'   => '30 days',
-                        	'100'  => '100 days',
-                	),
-                	'default'       => '30',
+			'friendly_name' => 'Recheck after',
+			'description'   => 'The shortest possible interval after which new testing will occur',
+			'method'        => 'drop_array',
+			'array'         => array(
+				'1'    => '1 day',
+				'7'    => '7 days',
+				'30'   => '30 days',
+				'100'  => '100 days',
+			),
+			'default'       => '30',
 		),
-        	'snver_email_notify' => array(
-                	'friendly_name' => 'Send email on SNVer information change',
-                	'description'   => 'If SNVer find change, send email',
-                	'method'        => 'checkbox',
-                	'default'       => 'off',
+		'snver_email_notify' => array(
+			'friendly_name' => 'Send email on SNVer information change',
+			'description'   => 'If SNVer find change, send email',
+			'method'        => 'checkbox',
+			'default'       => 'off',
 		),
-        	'snver_email_notify_exclude' => array(
-                	'friendly_name' => 'Excluded notification Host IDs',
-                	'description'   => 'Some devices report hw changes too often. You can exclude these host from email notification. Insert Host IDs, comma separator',
-                	'method'        => 'textbox',
-                	'max_length'	=> '500',
-                	'default'       => '',
+		'snver_email_notify_exclude' => array(
+			'friendly_name' => 'Excluded notification Host IDs',
+			'description'   => 'Some devices report hw changes too often. You can exclude these host from email notification. Insert Host IDs, comma separator',
+			'method'        => 'textbox',
+			'max_length'	=> '500',
+			'default'       => '',
 		),
-        );
+	);
 }
 
 
@@ -103,93 +103,91 @@ function plugin_snver_poller_bottom () {
 
 	include_once('./plugins/snver/functions.php');
 
-    	list($micro,$seconds) = explode(" ", microtime());
-    	$start = $seconds + $micro;
+	list($micro,$seconds) = explode(" ", microtime());
+	$start = $seconds + $micro;
 
-    	$now = time();
-    	$done = 0;
+	$now = time();
+	$done = 0;
 
 	$number_of_hosts = read_config_option('snver_hosts_processed');
 	$snver_history = read_config_option('snver_history');
-	$snver_records = read_config_option('snver_records');	
+	$snver_records = read_config_option('snver_records');
 
 	if ($number_of_hosts > 0) {
-		// not tested 
-   		$hosts1 = db_fetch_assoc ("(SELECT h1.id as id,last_check as xx FROM host AS h1 LEFT JOIN plugin_snver_history AS h2 
-   			ON h1.id=h2.host_id WHERE h1.disabled != 'on' AND h1.status BETWEEN 2 AND 3 AND h2.last_check IS NULL)
-   			LIMIT " . $number_of_hosts);
-   			
-   		$returned = cacti_sizeof($hosts1);	
+		// new/not tested hosts
+		$hosts1 = db_fetch_assoc ("(SELECT h1.id as id,last_check as xx FROM host AS h1 LEFT JOIN plugin_snver_history AS h2 
+			ON h1.id=h2.host_id WHERE h1.disabled != 'on' AND h1.status BETWEEN 2 AND 3 AND h2.last_check IS NULL)
+			LIMIT " . $number_of_hosts);
 
- 		// old hosts  		
-   		$hosts2 = db_fetch_assoc ("select h1.host_id as id,h1.last_check as xx, host.description as description,
-   			host.hostname as hostname 
-   			from plugin_snver_history as h1 join host on host.id=h1.host_id 
-   			where host.disabled != 'on' and host.status between 2 and 3 
-   				and h1.last_check = (select max(h2.last_check) 
-   					from plugin_snver_history as h2 where h1.host_id = h2.host_id) 
-   					having now() > date_add(xx, interval " . $snver_history . " day)
-   					limit " . ($number_of_hosts-$returned) );
-   		
-   		
+		$returned = cacti_sizeof($hosts1);
+
+		// already tested hosts
+		$hosts2 = db_fetch_assoc ("select h1.host_id as id,h1.last_check as xx, host.description as description,
+			host.hostname as hostname 
+			from plugin_snver_history as h1 join host on host.id=h1.host_id 
+			where host.disabled != 'on' and host.status between 2 and 3 
+				and h1.last_check = (select max(h2.last_check) 
+					from plugin_snver_history as h2 where h1.host_id = h2.host_id) 
+					having now() > date_add(xx, interval " . $snver_history . " day)
+					limit " . ($number_of_hosts-$returned) );
+
 		$hosts = array_merge($hosts1,$hosts2);
 
-	    	if (cacti_sizeof($hosts) > 0)      {
-        		foreach ($hosts as $host)       {
+		if (cacti_sizeof($hosts) > 0) {
+			foreach ($hosts as $host) {
 
-        			$data_act = plugin_snver_get_info($host['id']);
+				$data_act = plugin_snver_get_info($host['id']);
 
 				$data_his = db_fetch_row_prepared ('SELECT * FROM plugin_snver_history 
 					WHERE host_id = ? ORDER BY last_check DESC LIMIT 1', array($host['id']));
 
 				if ($data_his) {
 
-                			$data_his = stripslashes($data_his['data']);
+					$data_his = stripslashes($data_his['data']);
 
-                			if (strcmp ($data_his, $data_act) === 0) {	// only update last check
-        					db_execute ('UPDATE plugin_snver_history set last_check = now() 
-        						WHERE host_id = ' . $host['id'] . ' ORDER BY last_check DESC LIMIT 1');
-    					} else {
+					if (strcmp ($data_his, $data_act) === 0) {	// only update last check
+						db_execute ('UPDATE plugin_snver_history set last_check = now() 
+							WHERE host_id = ' . $host['id'] . ' ORDER BY last_check DESC LIMIT 1');
+					} else {
 
-        					db_execute ("INSERT INTO plugin_snver_history (host_id,data,last_check) VALUES (" .
-        					$host['id'] . ",'" . addslashes($data_act) . "', now())");
+						db_execute ("INSERT INTO plugin_snver_history (host_id,data,last_check) VALUES (" .
+						$host['id'] . ",'" . addslashes($data_act) . "', now())");
 
- 	     					db_execute ('DELETE FROM plugin_snver_history WHERE host_id = ' . $host['id'] . ' order by last_check LIMIT ' .  $snver_records);
-						
+// !!! tenhle mazaci je asi spatne, maze toho moc, mozna uz opraveno
+						db_execute_prepared ('DELETE FROM plugin_snver_history WHERE host_id = ? ORDER BY last_check LIMIT ? OFFSET ?',
+							array($host['id'], 100, $snver_records));
+
 						$excluded = explode(',', read_config_option('snver_email_notify_exclude'));
-						
+
 						if (read_config_option('snver_email_notify')) {
 							if (in_array($host['id'], $excluded)) {
- 	 		     					cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '),  excluded from notification');
+								cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '),  excluded from notification');
 							} else {
 
-        							$emails = db_fetch_cell_prepared ('SELECT emails, host.* FROM plugin_notification_lists 
-	        							LEFT JOIN host
-        								ON plugin_notification_lists.id = host.thold_host_email
-        								WHERE host.id = ?', array($host['id']));
+								$emails = db_fetch_cell_prepared ('SELECT emails, host.* FROM plugin_notification_lists 
+									LEFT JOIN host
+									ON plugin_notification_lists.id = host.thold_host_email
+									WHERE host.id = ?', array($host['id']));
 
-       								 send_mail($emails,
+								 send_mail($emails,
 									read_config_option('settings_from_email'),
 									'Plugin SNVer - device ' . $host['description'] . ' changed',
 									'I have found any HW/serial number change on host ' . $host['description'] . ' (' . $host['hostname'] . '):<br/>' . PHP_EOL .
 									$data_act . '<br/><br/>' . PHP_EOL . 'Older data:<br/>' . PHP_EOL . $data_his, '', '', true); 
 
- 	 	     						cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '), sending email notification');
+								cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '), sending email notification');
 							}
-        							
-        					} else { // only log
- 	 	     					cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '),  only logging');
-        					}
-                			}
-        			}
-        			else {
-       					db_execute ("INSERT INTO plugin_snver_history (host_id,data,last_check) VALUES (" .
-        					$host['id'] . ",'" . addslashes($data_act) . "', now())");
-        			}
-       			
+
+						} else { // only log
+							cacti_log('Plugin SNVer - host changed (id:' . $host['id'] . '),  only logging');
+						}
+					}
+				} else {
+					db_execute ("INSERT INTO plugin_snver_history (host_id,data,last_check) VALUES (" .
+						$host['id'] . ",'" . addslashes($data_act) . "', now())");
+				}
 				$done++;
 			}
-
 		}
 	}
 
@@ -198,8 +196,6 @@ function plugin_snver_poller_bottom () {
 
 	cacti_log('SNVer STATS: hosts processed/max: ' . $done . '/' . $number_of_hosts . '. Duration: ' . round($total_time,2));
 }
-
-
 
 
 function plugin_snver_device_remove($device_id) {
@@ -279,42 +275,44 @@ function plugin_snver_setup_database() {
 }
 
 function snver_show_tab () {
-        global $config;
-        if (api_user_realm_auth('snver.php')) {
-                $cp = false;
-                if (basename($_SERVER['PHP_SELF']) == 'snver.php')
-                $cp = true;
-                print '<a href="' . $config['url_path'] . 'plugins/snver/snver_tab.php"><img src="' . $config['url_path'] . 'plugins/snver/images/tab_snver' . ($cp ? '_down': '') . '.gif" alt="snver" align="absmiddle" border="0"></a>';
-        }
+	global $config;
+
+	if (api_user_realm_auth('snver.php')) {
+		$cp = false;
+		if (basename($_SERVER['PHP_SELF']) == 'snver.php') {
+			$cp = true;
+		}
+
+		print '<a href="' . $config['url_path'] . 'plugins/snver/snver_tab.php"><img src="' . $config['url_path'] . 'plugins/snver/images/tab_snver' . ($cp ? '_down': '') . '.gif" alt="snver" align="absmiddle" border="0"></a>';
+	}
 }
 
 
-function plugin_snver_uninstall ()	{
+function plugin_snver_uninstall () {
 
 	if (sizeof(db_fetch_assoc("SHOW TABLES LIKE 'plugin_snver_steps'")) > 0 ) {
 		db_execute("DROP TABLE `plugin_snver_steps`");
-        }
+	}
 	if (sizeof(db_fetch_assoc("SHOW TABLES LIKE 'plugin_snver_organizations'")) > 0 ) {
 		db_execute("DROP TABLE `plugin_snver_organizations`");
-        }
+	}
 	if (sizeof(db_fetch_assoc("SHOW TABLES LIKE 'plugin_snver_history'")) > 0 ) {
 		db_execute("DROP TABLE `plugin_snver_history`");
-        }
+	}
 }
 
 function plugin_snver_upgrade_database() {
+	global $config;
 
-        global $config;
+	$info = parse_ini_file($config['base_path'] . '/plugins/snver/INFO', true);
+	$info = $info['info'];
 
-        $info = parse_ini_file($config['base_path'] . '/plugins/snver/INFO', true);
-        $info = $info['info'];
+	$current = $info['version'];
+	$oldv    = db_fetch_cell('SELECT version FROM plugin_config WHERE directory = "snver"');
 
-        $current = $info['version'];
-        $oldv    = db_fetch_cell('SELECT version FROM plugin_config WHERE directory = "snver"');
+	if (!cacti_version_compare($oldv, $current, '=')) {
 
-        if (!cacti_version_compare($oldv, $current, '=')) {
-
-                if (cacti_version_compare($oldv, '0.4', '<=')) {
+		if (cacti_version_compare($oldv, '0.4', '<=')) {
 
 			$data = array();
 			$data['columns'][] = array('name' => 'host_id', 'type' => 'int(11)', 'NULL' => false);
@@ -326,18 +324,20 @@ function plugin_snver_upgrade_database() {
 			api_plugin_db_table_create ('snver', 'plugin_snver_history', $data);
 		}
 
-                if (cacti_version_compare($oldv, '0.5', '<=')) {
+		if (cacti_version_compare($oldv, '0.5', '<=')) {
 			db_execute('ALTER TABLE plugin_snver_history MODIFY COLUMN data text');
 		}
-                if (cacti_version_compare($oldv, '0.6', '<=')) {
+
+		if (cacti_version_compare($oldv, '0.6', '<=')) {
 			db_execute('ALTER TABLE plugin_snver_history DROP primary key');
 		}
-                if (cacti_version_compare($oldv, '0.7', '<=')) {
+
+		if (cacti_version_compare($oldv, '0.7', '<=')) {
 			db_execute('ALTER TABLE plugin_snver_steps ADD mandatory enum("yes","no") default "yes" NOT NULL');
 
 			// aruba ap uptime is problem for history - so optional
 			db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items,mandatory) VALUES (14823,'APs_uptime','.1.3.6.1.4.1.14823.2.3.3.1.2.1.1','.*','table','1-mac,2-name,9-uptime','no')");
-	
+
 			// Cisco
 			db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (9,'switch','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
 			db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method,table_items) VALUES (5771,'switch','.1.3.6.1.4.1.9.9.500.1.2.1.1','.*','table','3-role,4-priority,7-mac,8-swimage')");
@@ -351,8 +351,6 @@ function plugin_snver_upgrade_database() {
 			db_execute ("INSERT INTO plugin_snver_steps (org_id,description,oid,result,method) VALUES (9,'Port mac addr','1.3.6.1.4.1.9.9.500.1.2.1.1.7','.*','walk')");
 
 		}
-
-
 	}
 }
 
@@ -368,7 +366,7 @@ function plugin_snver_version()	{
 
 
 function plugin_snver_check_config () {
-	
+
 	plugin_snver_upgrade_database();
 	return true;
 }

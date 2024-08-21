@@ -1,7 +1,7 @@
 <?php
 /*
  +-------------------------------------------------------------------------+
- | Copyright (C) 2021-2022 Petr Macek                                      |
+ | Copyright (C) 2021-2023 Petr Macek                                      |
  |                                                                         |
  | This program is free software; you can redistribute it and/or           |
  | modify it under the terms of the GNU General Public License             |
@@ -28,7 +28,7 @@ include_once('./include/auth.php');
 include_once('./lib/snmp.php');
 include_once('./plugins/snver/functions.php');
 
-$number_of_hosts = read_config_option('snver_hosts_processed');
+$snver_records = read_config_option('snver_records');
 
 $id = get_filter_request_var('host_id', FILTER_VALIDATE_INT);
 
@@ -36,9 +36,14 @@ $alive = db_fetch_row_prepared ("SELECT * FROM host
 			WHERE id = ? AND disabled != 'on' AND status BETWEEN 2 AND 3", array($id));
 
 if (!$alive) {
-	print 'Disabled/down device. Nothing to do<br/><br/>';
-} else {
+	print 'Disabled/down device. No actual data.<br/><br/>';
 
+	if ($snver_records > 0) {
+		print plugin_snver_get_history($id,$out);
+	} else {
+		print 'History data store disabled';
+	}
+} else {
 	$out = plugin_snver_get_info($id);
 	print $out;
 	print '<br/><br/>';
@@ -47,12 +52,9 @@ if (!$alive) {
 	print $out;
 	print '<br/><br/>';
 
-
-	if ($number_of_hosts > 0) {
+	if ($snver_records > 0) {
 		print plugin_snver_get_history($id,$out);
-
-	}
-	else {
+	} else {
 		print 'History data store disabled';
 	}
 }

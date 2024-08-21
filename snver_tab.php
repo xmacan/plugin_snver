@@ -1,7 +1,7 @@
 <?php
 /*
  +-------------------------------------------------------------------------+
- | Copyright (C) 2021-2022 Petr Macek                                      |
+ | Copyright (C) 2021-2023 Petr Macek                                      |
  |                                                                         |
  | This program is free software; you can redistribute it and/or           |
  | modify it under the terms of the GNU General Public License             |
@@ -38,14 +38,13 @@ set_default_action();
 $selectedTheme = get_selected_theme();
 
 switch (get_request_var('action')) {
-        case 'ajax_hosts':
+	case 'ajax_hosts':
 
-                $sql_where = '';
+		$sql_where = '';
+		get_allowed_ajax_hosts(true, 'applyFilter', $sql_where);
 
-                get_allowed_ajax_hosts(true, 'applyFilter', $sql_where);
+		break;
 
-                break;
-                
 	case 'find':
 		general_header();
 		display_snver_form();
@@ -58,64 +57,79 @@ switch (get_request_var('action')) {
 		general_header();
 		display_snver_form();
 		bottom_footer();
+
                 break;
 }
 
-
-
 function display_snver_form() {
 	global $config;
-	
-	$number_of_hosts = read_config_option('snver_hosts_processed');
-	
+
+	$snver_records = read_config_option('snver_records');
+
 	print get_md5_include_js($config['base_path'].'/plugins/snver/snver.js');
 
 	$host_where = '';
 
+	$host_id = get_filter_request_var('host_id');
+
 	html_start_box('<strong>SNVer</strong>', '100%', '', '3', 'center', '');
+
 ?>
 
 	<tr>
- 	 <td>
-  	  <form name="form_snver" action="snver_tab.php">
-   		<table width="60%" cellpadding="0" cellspacing="0">
-    		<tr class="navigate_form">
-     		<td>
-		       <?php print html_host_filter(get_filter_request_var('host_id', FILTER_VALIDATE_INT), 'applyFilter', $host_where);?>
+	 <td>
+	  <form name="form_snver" action="snver_tab.php">
+		<table width="60%" cellpadding="0" cellspacing="0">
+		<tr class="navigate_form">
+		<td>
+		       <?php print html_host_filter($host_id, 'applyFilter', $host_where);?>
 		</td>
-     		<td>
-      			Find in stored data <input type='text' class='ui-button ui-corner-all ui-widget' name='find' id='find' value='<?php print get_request_var('find');?>'> 
-      			<input type='submit' class='ui-button ui-corner-all ui-widget' value='<?php print __('Find');?>'>
-     		</td>
-     		<td>
-      			<input type='button' class='ui-button ui-corner-all ui-widget' id='clear' value='<?php print __('Clear');?>' title='<?php print __esc('Clear Filters');?>'> 
-     		</td>
-    		</tr>
-  		</table>
+		<td>
+			Find in stored data <input type='text' class='ui-button ui-corner-all ui-widget' name='find' id='find' value='<?php print get_request_var('find');?>'> 
+			<input type='submit' class='ui-button ui-corner-all ui-widget' value='<?php print __('Find');?>'>
+		</td>
+		<td>
+			<input type='button' class='ui-button ui-corner-all ui-widget' id='clear' value='<?php print __('Clear');?>' title='<?php print __esc('Clear Filters');?>'> 
+		</td>
+		</tr>
+		</table>
 	  </form>
        </td>
      <tr>
 <?php
 	html_end_box();
 
-	if (in_array(get_filter_request_var ('host_id'),snver_get_allowed_devices($_SESSION['sess_user_id'], true))) 	{
-		$out =  plugin_snver_get_info(get_request_var('host_id'));
-		print $out;
-		print '<br/><br/>';
-		
-		$out =  plugin_snver_get_info_optional(get_request_var('host_id'));
-		print $out;
-		print '<br/><br/>';
-		
-		if ($number_of_hosts > 0) {
-			print plugin_snver_get_history(get_request_var('host_id'),$out);
+	if (in_array($host_id, snver_get_allowed_devices($_SESSION['sess_user_id'], true))) {
 
-		}
-		else {
-        		print 'History data store disabled';
+		$actual_info = plugin_snver_get_info($host_id);
+		if ($actual_info) {
+			print $actual_info;
+			print '<br/><br/>';
+
+			$optional = plugin_snver_get_info_optional($host_id);
+			print $optional;
+			print '<br/><br/>';
 		}
 
+		if ($snver_records > 0) {
+			$history = plugin_snver_get_history($host_id);
+
+			$old = $actual_info;
+			if (cacti_sizeof($history)) {
+				foreach ($history as $key=>$value) {
+					if (strcmp ($value, $old) === 0) {
+						echo "$key - Stejna data<br/>\n";
+					} else {
+						echo "$key - Jina data<br/>\n";
+						echo $value;
+					}
+
+					$old = $value;
+				}
+			}
+		} else {
+			print 'History data store disabled';
+		}
 	}
 }
-
 

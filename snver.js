@@ -1,10 +1,9 @@
-// host.php
+// used in host.php
 $(function() {
 
 	$('#snver_info').click(function(event) {
 
 		event.preventDefault();
-
 		$.get(urlPath+'plugins/snver/snver.php?host_id='+$('#snver_info').data('snver_id'))
 			.done(function(data) {
 			$('#ping_results').html(data);
@@ -17,13 +16,13 @@ $(function() {
 });
 
 
-//snver_tab.php
+// used in snver_tab.php
 function applyFilter() {
-                strURL  = 'snver_tab.php' +
-                        '?host_id=' + $('#host_id').val() +
-                        '&header=false';
-                loadPageNoHeader(strURL);
-        }
+	strURL  = 'snver_tab.php' +
+		'?host_id=' + $('#host_id').val() +
+		'&header=false';
+	loadPageNoHeader(strURL);
+}
 
 function clearFilter() {
 	strURL = 'snver_tab.php?clear=1&header=false';

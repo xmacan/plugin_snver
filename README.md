@@ -1,3 +1,8 @@
+# SNVER plugin discontinued.
+## SNVER was used as basis for new plugin Evidence. It is maintained by Cacti group.
+(https://github.com/cacti/plugin_evidence/
+
+~~
 # plugin_snver for Cacti
 
 ## Try find serial number, version and important information about device:
@@ -62,3 +67,4 @@ If you find a problem, let me know via github or https://forums.cacti.net
 	--- 0.1
 		Beginning
 
+~~
